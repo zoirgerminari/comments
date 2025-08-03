@@ -1,0 +1,13 @@
+{
+  "name": "sistema-comentarios-api",
+  "version": "1.0.0",
+  "description": "API para sistema de comentários",
+  "main": "api-comments.php",
+  "scripts": {
+    "start": "php -S 0.0.0.0:8000"
+  },
+  "dependencies": {},
+  "engines": {
+    "php": "^7.4"
+  }
+}

@@ -1,0 +1,37 @@
+# Sistema de Comentários Local
+
+## 📁 Arquivos Principais
+
+### 🎯 **RECOMENDADO - Página Única:**
+- **`comentarios.php`** - Sistema completo em uma página
+
+### 📄 **Arquivos Opcionais:**
+- **`form.html`** - Formulário com layout em duas colunas
+- **`listar.php`** - Lista completa de comentários
+- **`salvar.php`** - Script de processamento dos formulários
+- **`get_comments.php`** - API JSON para carregar comentários
+
+### 🗄️ **Banco de Dados:**
+- **`comentarios.db`** - Banco SQLite principal (gerado automaticamente)
+- **`formularioz1.db`** - Banco alternativo
+
+### 🏠 **Página Inicial:**
+- **`index.html`** - Menu de navegação
+
+### 🧪 **Utilitários:**
+- **`teste_dados.php`** - Inserir dados de teste
+- **`config.php`** - Configuração básica
+
+## 🚀 Como Usar
+
+1. **Inicie o Apache** no XAMPP
+2. **Acesse:** http://localhost/Banco%20de%20dados%20html%20php/comentarios.php
+3. **Use o sistema!**
+
+## ✨ Funcionalidades
+
+- ✅ Formulário de comentários
+- ✅ Salvamento automático
+- ✅ Lista em tempo real
+- ✅ Design responsivo
+- ✅ Banco SQLite local

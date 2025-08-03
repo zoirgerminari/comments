@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Comentários Local</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, rgb(48, 48, 192), rgb(73, 73, 41));
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 15px 10px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, rgb(48, 48, 192), rgb(73, 73, 41));
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid rgb(48, 48, 192);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎯</div>
+        <h1>Sistema de Comentários</h1>
+        <h2>Versão Local</h2>
+        
+        <div class="instructions">
+            <h3>📋 Como Testar:</h3>
+            <div class="step">
+                <strong>1.</strong> Inicie o XAMPP e ative o Apache
+            </div>
+            <div class="step">
+                <strong>2.</strong> Acesse: <code>http://localhost/Banco%20de%20dados%20html%20php/</code>
+            </div>
+            <div class="step">
+                <strong>3.</strong> Use os botões abaixo para navegar
+            </div>
+        </div>
+
+        <div style="margin: 30px 0;">
+            <a href="comentarios.php" class="btn btn-primary">
+                � Sistema Completo
+            </a>
+            
+            <a href="form.html" class="btn btn-secondary">
+                � Formulário Original
+            </a>
+            
+            <a href="listar.php" class="btn btn-success">
+                📋 Ver Comentários
+            </a>
+        </div>
+
+        <div class="instructions">
+            <h3>🔧 Arquivos do Sistema:</h3>
+            <div class="step">
+                ✅ <strong>comentarios.php:</strong> Página única completa (recomendado)
+            </div>
+            <div class="step">
+                ✅ <strong>form.html:</strong> Formulário com layout em duas colunas
+            </div>
+            <div class="step">
+                ✅ <strong>listar.php:</strong> Lista completa de comentários
+            </div>
+            <div class="step">
+                ✅ <strong>salvar.php:</strong> Script de processamento
+            </div>
+            <div class="step">
+                ✅ <strong>get_comments.php:</strong> API JSON para comentários
+            </div>
+            <div class="step">
+                ✅ <strong>Banco SQLite:</strong> Armazenamento local dos dados
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
+            <h4>🚀 Como Usar:</h4>
+            <p>1. <strong>Inicie o Apache</strong> no XAMPP Control Panel</p>
+            <p>2. <strong>Acesse:</strong> http://localhost/Banco%20de%20dados%20html%20php/comentarios.php</p>
+            <p>3. <strong>Digite seu comentário</strong> e clique em "Enviar"</p>
+            <p>4. <strong>Veja o resultado</strong> aparecer instantaneamente!</p>
+        </div>
+    </div>
+</body>
+</html>
