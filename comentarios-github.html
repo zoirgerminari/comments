@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Comentários - Para GitHub Pages</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: linear-gradient(to right, rgb(48, 48, 192), rgb(73, 73, 41));
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: calc(100vh - 40px);
+        }
+        .box {
+            background-color: rgba(13, 4, 78, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            width: 400px;
+            color: white;
+            margin-top: 50px;
+        }
+        .comments-section {
+            background-color: rgba(13, 4, 78, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            width: 500px;
+            color: white;
+            margin-top: 50px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        fieldset {
+            border: 3px solid dodgerblue;
+        }
+        legend {
+            border: 1px solid dodgerblue;
+            padding: 10px;
+            text-align: center;
+            background-color: rgb(9, 38, 66);
+            border-radius: 5px;
+        }
+        .inputBox {
+            position: relative;
+        }
+        .inputUser {
+            background: none;
+            border: none;
+            border-bottom: 1px solid white;
+            outline: none;
+            color: aliceblue;
+            font-size: 15px;
+            width: 100%;
+            letter-spacing: 2px;
+        }
+        .labelInput {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            pointer-events: none;
+            transition: .5s;
+        }
+        .inputUser:focus ~ .labelInput,
+        .inputUser:valid ~ .labelInput {
+            top: -20px;
+            font-size: 12px;
+            color: rgb(22, 77, 205);
+        }
+        #submit {
+            background-image: linear-gradient(to right, rgb(48, 48, 192), rgb(73, 73, 41));
+            width: 100%;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            color: aliceblue;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        #submit:hover {
+            background-image: linear-gradient(to right, rgb(65, 65, 155), rgb(116, 116, 44));
+        }
+        .comment-item {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .comment-name {
+            font-weight: bold;
+            color: rgb(22, 77, 205);
+            margin-bottom: 8px;
+        }
+        .comment-text {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: white;
+        }
+        .comment-date {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+            text-align: center;
+            display: none;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+            display: none;
+        }
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .loading {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .box, .comments-section {
+                width: 90%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Formulário de Comentários -->
+        <div class="box">
+            <div id="success-message" class="success-message">
+                ✅ Comentário enviado com sucesso!
+            </div>
+            <div id="error-message" class="error-message">
+                ❌ Erro ao enviar comentário. Tente novamente.
+            </div>
+            
+            <form id="commentForm">
+                <fieldset>
+                    <legend><b>Adicionar Comentário</b></legend>
+                    <br>
+                    <div class="inputBox">
+                        <input type="text" name="name" id="name" class="inputUser" required>
+                        <label for="name" class="labelInput">Nome</label>
+                    </div>
+                    <br><br>
+                    <div class="inputBox">
+                        <textarea name="comments" id="comments" class="inputUser" required style="min-height: 40px; resize: vertical;"></textarea>
+                        <label for="comments" class="labelInput">Comentário</label>
+                    </div>
+                    <br><br>
+                    <input type="submit" name="submit" id="submit" value="Enviar Comentário">
+                </fieldset>
+            </form>
+        </div>
+
+        <!-- Lista de Comentários -->
+        <div class="comments-section">
+            <h3>💬 Comentários</h3>
+            <div id="comments-container">
+                <div class="loading">Carregando comentários...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL da API - ALTERAR PARA SUA URL DO RAILWAY/VERCEL
+        const API_URL = 'https://zoir-html-2025-production.up.railway.app';
+        
+        // Função para carregar comentários
+        async function loadComments() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                const container = document.getElementById('comments-container');
+                
+                if (data.success && data.comments.length > 0) {
+                    container.innerHTML = data.comments.map(comment => `
+                        <div class="comment-item">
+                            <div class="comment-name">👤 ${comment.name}</div>
+                            <div class="comment-text">${comment.comments}</div>
+                            <div class="comment-date">📅 ${comment.data}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.7); padding: 40px;">😔 Ainda não há comentários</div>';
+                }
+            } catch (error) {
+                document.getElementById('comments-container').innerHTML = 
+                    '<div style="text-align: center; color: rgba(255,255,255,0.7); padding: 40px;">❌ Erro ao carregar comentários</div>';
+            }
+        }
+
+        // Função para enviar comentário
+        async function submitComment(name, comments) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, comments })
+                });
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                return { success: false, message: 'Erro de conexão' };
+            }
+        }
+
+        // Event listener para o formulário
+        document.getElementById('commentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const comments = document.getElementById('comments').value.trim();
+            
+            if (!name || !comments) {
+                showMessage('error', 'Por favor, preencha todos os campos');
+                return;
+            }
+            
+            // Desabilitar botão durante envio
+            const submitBtn = document.getElementById('submit');
+            submitBtn.disabled = true;
+            submitBtn.value = 'Enviando...';
+            
+            const result = await submitComment(name, comments);
+            
+            if (result.success) {
+                showMessage('success', 'Comentário enviado com sucesso!');
+                document.getElementById('commentForm').reset();
+                loadComments(); // Recarregar comentários
+            } else {
+                showMessage('error', result.message || 'Erro ao enviar comentário');
+            }
+            
+            // Reabilitar botão
+            submitBtn.disabled = false;
+            submitBtn.value = 'Enviar Comentário';
+        });
+
+        // Função para mostrar mensagens
+        function showMessage(type, message) {
+            const successEl = document.getElementById('success-message');
+            const errorEl = document.getElementById('error-message');
+            
+            // Esconder ambas
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+            
+            if (type === 'success') {
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                setTimeout(() => successEl.style.display = 'none', 5000);
+            } else {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                setTimeout(() => errorEl.style.display = 'none', 5000);
+            }
+        }
+
+        // Carregar comentários quando a página carregar
+        window.addEventListener('load', loadComments);
+
+        // Recarregar comentários a cada 30 segundos
+        setInterval(loadComments, 30000);
+    </script>
+</body>
+</html>
