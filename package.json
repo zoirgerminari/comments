@@ -1,0 +1,25 @@
+{
+  "name": "sistema-comentarios-netlify",
+  "version": "1.0.0",
+  "description": "Sistema de comentários independente hospedado no Netlify",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Build complete'",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "keywords": [
+    "comentarios",
+    "netlify",
+    "sqlite",
+    "javascript"
+  ],
+  "author": "Desenvolvedor",
+  "license": "MIT"
+}

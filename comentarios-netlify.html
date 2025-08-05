@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Comentários</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💬 Sistema de Comentários</h1>
+            <p>Deixe seu comentário e veja o que outros estão dizendo!</p>
+        </header>
+
+        <main>
+            <section class="form-section">
+                <h2>📝 Novo Comentário</h2>
+                <form id="comentarioForm">
+                    <div class="form-group">
+                        <input type="text" id="nome" name="nome" required>
+                        <label for="nome">Seu Nome</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" required>
+                        <label for="email">Seu Email</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea id="comentario" name="comentario" rows="4" required></textarea>
+                        <label for="comentario">Seu Comentário</label>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">
+                        <span>💾 Enviar Comentário</span>
+                    </button>
+                </form>
+            </section>
+
+            <section class="comments-section">
+                <h2>💭 Comentários Recentes</h2>
+                <div id="comentarios-lista" class="comments-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Carregando comentários...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
