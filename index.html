@@ -433,11 +433,14 @@
                         // MODO LOCAL: Atualizar imediatamente a exibição
                         this.displayComments(this.localComments);
                     } else {
-                        // MODO NETLIFY: Recarregar comentários do banco
-                        console.log('🔄 Recarregando comentários após submissão...');
-                        // Pequeno delay para garantir que o banco foi atualizado
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        await this.loadComments();
+                        // MODO NETLIFY: Exibir imediatamente do localStorage, depois recarregar
+                        console.log('🔄 Exibindo comentário imediatamente do localStorage...');
+                        this.displayComments(this.localComments);
+                        
+                        // Recarregar em background para sincronizar
+                        setTimeout(async () => {
+                            await this.loadComments();
+                        }, 2000);
                     }
                     
                 } catch (error) {
@@ -522,7 +525,8 @@
                     
                     this.localComments.unshift(newComment);
                     this.saveToLocalStorage();
-                    console.log('💾 Comentário adicionado ao cache local para exibição');
+                    console.log('💾 Comentário adicionado ao cache local para exibição:', newComment);
+                    console.log('📱 Total de comentários no localStorage:', this.localComments.length);
 
                     return result;
                 }
