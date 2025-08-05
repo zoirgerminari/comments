@@ -96,7 +96,6 @@ exports.handler = async (event, context) => {
         `;
 
         console.log(`✅ Comentário salvo no PostgreSQL! ID: ${newComment.id}`);
-        console.log('💾 Comentário completo:', newComment);
 
         return {
             statusCode: 200,
@@ -105,12 +104,7 @@ exports.handler = async (event, context) => {
                 success: true,
                 message: 'Comentário adicionado com sucesso!',
                 id: newComment.id,
-                comment: newComment,
-                debug: {
-                    timestamp: new Date().toISOString(),
-                    tableCreated: true,
-                    insertExecuted: true
-                }
+                comment: newComment
             })
         };
 
