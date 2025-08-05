@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 Test - Force No Cache</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .result {
+            background: #222;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .info { color: #2196f3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 V3 Functions Test - No Cache</h1>
+        <p><strong>Testing brand new V3 functions directly</strong></p>
+        
+        <div>
+            <h3>Step 1: Test V3 GET Function</h3>
+            <button onclick="testV3Get()">Test comments-get-v3</button>
+            <div id="getResult" class="result"></div>
+        </div>
+        
+        <div>
+            <h3>Step 2: Test V3 ADD Function</h3>
+            <button onclick="testV3Add()">Test comments-add-v3</button>
+            <div id="addResult" class="result"></div>
+        </div>
+        
+        <div>
+            <h3>Step 3: Full Integration Test</h3>
+            <button onclick="fullV3Test()">Add Comment + Check Result</button>
+            <div id="fullResult" class="result"></div>
+        </div>
+        
+        <div>
+            <h3>Debug Info</h3>
+            <div id="debugInfo" class="result">
+                <div>Timestamp: <span id="timestamp"></span></div>
+                <div>URL: <span id="currentUrl"></span></div>
+                <div>Cache Buster: <span id="cacheBuster"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update debug info
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('cacheBuster').textContent = Date.now();
+        
+        const API_BASE = '/.netlify/functions';
+        
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        async function testV3Get() {
+            const resultId = 'getResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            const cacheBuster = Date.now();
+            const url = `${API_BASE}/comments-get-v3?nocache=${cacheBuster}`;
+            
+            log(resultId, `🔥 Testing V3 GET function...`, 'info');
+            log(resultId, `URL: ${url}`, 'info');
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+                
+                log(resultId, `Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const text = await response.text();
+                log(resultId, `Raw response: ${text}`, 'info');
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(text);
+                        log(resultId, `✅ SUCCESS! Parsed response:`, 'success');
+                        log(resultId, JSON.stringify(data, null, 2), 'success');
+                        
+                        if (data.version === 'V3-CLEAN') {
+                            log(resultId, `🎯 CONFIRMED: V3 function is running!`, 'success');
+                        }
+                        
+                        if (data.comments !== undefined) {
+                            log(resultId, `🎉 CONFIRMED: Returns 'comments' (not 'comentarios')!`, 'success');
+                        }
+                    } catch (e) {
+                        log(resultId, `❌ Failed to parse JSON: ${e.message}`, 'error');
+                    }
+                } else {
+                    log(resultId, `❌ HTTP Error: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(resultId, `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testV3Add() {
+            const resultId = 'addResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            const cacheBuster = Date.now();
+            const url = `${API_BASE}/comments-add-v3?nocache=${cacheBuster}`;
+            const testData = {
+                nome: `V3 Test User ${cacheBuster}`,
+                email: `v3test${cacheBuster}@example.com`,
+                comentario: `V3 function test comment - ${new Date().toLocaleString()}`
+            };
+            
+            log(resultId, `🔥 Testing V3 ADD function...`, 'info');
+            log(resultId, `URL: ${url}`, 'info');
+            log(resultId, `Data: ${JSON.stringify(testData, null, 2)}`, 'info');
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                log(resultId, `Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const text = await response.text();
+                log(resultId, `Raw response: ${text}`, 'info');
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(text);
+                        log(resultId, `✅ SUCCESS! Parsed response:`, 'success');
+                        log(resultId, JSON.stringify(data, null, 2), 'success');
+                        
+                        if (data.version === 'V3-CLEAN') {
+                            log(resultId, `🎯 CONFIRMED: V3 ADD function is running!`, 'success');
+                        }
+                        
+                        if (data.success && data.id) {
+                            log(resultId, `🎉 CONFIRMED: Comment added with ID: ${data.id}!`, 'success');
+                        }
+                    } catch (e) {
+                        log(resultId, `❌ Failed to parse JSON: ${e.message}`, 'error');
+                    }
+                } else {
+                    log(resultId, `❌ HTTP Error: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(resultId, `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function fullV3Test() {
+            const resultId = 'fullResult';
+            document.getElementById(resultId).innerHTML = '';
+            
+            log(resultId, `🔄 Starting full V3 integration test...`, 'info');
+            
+            // Step 1: Get initial count
+            log(resultId, `1️⃣ Getting initial comment count...`, 'info');
+            
+            try {
+                const getResponse = await fetch(`${API_BASE}/comments-get-v3?nocache=${Date.now()}`);
+                const getData = await getResponse.json();
+                const initialCount = getData.comments?.length || 0;
+                log(resultId, `📊 Initial count: ${initialCount} comments`, 'info');
+                
+                // Step 2: Add new comment
+                log(resultId, `2️⃣ Adding new comment...`, 'info');
+                
+                const testData = {
+                    nome: `Full Test ${Date.now()}`,
+                    email: `fulltest${Date.now()}@example.com`,
+                    comentario: `Full V3 integration test - ${new Date().toLocaleString()}`
+                };
+                
+                const addResponse = await fetch(`${API_BASE}/comments-add-v3?nocache=${Date.now()}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const addData = await addResponse.json();
+                
+                if (addData.success) {
+                    log(resultId, `✅ Comment added with ID: ${addData.id}`, 'success');
+                    
+                    // Step 3: Verify comment appears
+                    log(resultId, `3️⃣ Verifying comment appears...`, 'info');
+                    
+                    const verifyResponse = await fetch(`${API_BASE}/comments-get-v3?nocache=${Date.now()}`);
+                    const verifyData = await verifyResponse.json();
+                    const finalCount = verifyData.comments?.length || 0;
+                    
+                    if (finalCount > initialCount) {
+                        log(resultId, `🎉 SUCCESS! Count increased from ${initialCount} to ${finalCount}`, 'success');
+                        log(resultId, `🎯 V3 functions are working perfectly!`, 'success');
+                        
+                        // Show the latest comment
+                        if (verifyData.comments && verifyData.comments.length > 0) {
+                            const latest = verifyData.comments[0];
+                            log(resultId, `📝 Latest comment: "${latest.comentario}" by ${latest.nome}`, 'success');
+                        }
+                    } else {
+                        log(resultId, `❌ Count didn't increase (${initialCount} → ${finalCount})`, 'error');
+                    }
+                } else {
+                    log(resultId, `❌ Failed to add comment: ${addData.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(resultId, `❌ Test failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
