@@ -494,7 +494,8 @@
                 } else {
                     // MODO NETLIFY: Usar banco de dados via API
                     console.log('🚀 Enviando comentário para API...');
-                    const response = await fetch(`${this.API_BASE_URL}/netlify-add-comment`, {
+                    console.log('🌐 API URL:', `${this.API_BASE_URL}/netlify-add-comment`);
+                    const response = await fetch(`${this.API_BASE_URL}/netlify-add-comment?t=${Date.now()}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -540,9 +541,10 @@
                     } else {
                         // MODO NETLIFY: Carregar do banco de dados
                         console.log('🔍 Tentando carregar comentários do banco...');
+                        console.log('🌐 API URL:', `${this.API_BASE_URL}/netlify-get-comments`);
                         
                         try {
-                            const response = await fetch(`${this.API_BASE_URL}/netlify-get-comments`);
+                            const response = await fetch(`${this.API_BASE_URL}/netlify-get-comments?t=${Date.now()}`);
                             
                             console.log('📡 Response status:', response.status);
                             
@@ -555,14 +557,19 @@
                             const data = await response.json();
                             console.log('📄 Data received:', data);
                             
-                            if (data.success && data.comments && data.comments.length > 0) {
+                            // Suporte para ambos os formatos de resposta (comments ou comentarios)
+                            const commentsArray = data.comments || data.comentarios || [];
+                            
+                            if (data.success && commentsArray && commentsArray.length > 0) {
                                 // Usar dados da API e atualizar localStorage
-                                this.localComments = data.comments;
+                                this.localComments = commentsArray;
                                 this.saveToLocalStorage();
-                                this.displayComments(data.comments);
+                                this.displayComments(commentsArray);
+                                console.log('✅ Comentários carregados da API:', commentsArray.length);
                             } else {
                                 // Usar localStorage como fallback
                                 console.warn('⚠️ API retornou vazio, usando localStorage de backup');
+                                console.log('🔍 Debug - data.success:', data.success, 'commentsArray:', commentsArray);
                                 this.displayComments(this.localComments);
                             }
                         } catch (fetchError) {
