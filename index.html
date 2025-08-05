@@ -464,6 +464,7 @@
                     return { success: true, message: 'Comment added successfully!' };
                 } else {
                     // MODO NETLIFY: Usar banco de dados via API
+                    console.log('🚀 Enviando comentário para API...');
                     const response = await fetch(`${this.API_BASE_URL}/add-comment`, {
                         method: 'POST',
                         headers: {
@@ -472,11 +473,15 @@
                         body: JSON.stringify(comment)
                     });
 
+                    console.log('📡 Submit response status:', response.status);
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
                     const result = await response.json();
+                    console.log('✅ Submit result:', result);
+                    
                     if (!result.success) {
                         throw new Error(result.message || 'Error submitting comment');
                     }
@@ -513,13 +518,17 @@
                         this.displayComments(this.localComments);
                     } else {
                         // MODO NETLIFY: Carregar do banco de dados
+                        console.log('🔍 Tentando carregar comentários do banco...');
                         const response = await fetch(`${this.API_BASE_URL}/get-comments`);
+                        
+                        console.log('📡 Response status:', response.status);
                         
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
 
                         const data = await response.json();
+                        console.log('📄 Data received:', data);
                         this.displayComments(data.comments || []);
                     }
                     
