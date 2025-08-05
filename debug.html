@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 3px; }
+        .error { background: #ffe6e6; border-left: 4px solid #ff0000; }
+        .success { background: #e6ffe6; border-left: 4px solid #00aa00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Comments System Debug</h1>
+    
+    <div class="debug-section">
+        <h2>Test Add Comment</h2>
+        <button onclick="testAddComment()">Add Test Comment</button>
+        <div id="addResult" class="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Test Get Comments</h2>
+        <button onclick="testGetComments()">Get Comments</button>
+        <div id="getResult" class="result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Test Full Flow</h2>
+        <button onclick="testFullFlow()">Add Comment + Get Comments</button>
+        <div id="flowResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/.netlify/functions';
+        
+        async function testAddComment() {
+            const resultDiv = document.getElementById('addResult');
+            resultDiv.innerHTML = '⏳ Testing add comment...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/add-comment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nome: 'Debug User',
+                        email: 'debug@test.com',
+                        comentario: 'This is a debug test comment created at ' + new Date().toISOString()
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Add comment result:', result);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `✅ Success: ${JSON.stringify(result, null, 2)}`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `❌ Error: ${JSON.stringify(result, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                console.error('Add comment error:', error);
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        async function testGetComments() {
+            const resultDiv = document.getElementById('getResult');
+            resultDiv.innerHTML = '⏳ Testing get comments...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/get-comments`);
+                const result = await response.json();
+                console.log('Get comments result:', result);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `✅ Success: Found ${result.total || 0} comments<br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    resultDiv.className = 'result success';
+                } else {
+                    resultDiv.innerHTML = `❌ Error: ${JSON.stringify(result, null, 2)}`;
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                console.error('Get comments error:', error);
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        async function testFullFlow() {
+            const resultDiv = document.getElementById('flowResult');
+            resultDiv.innerHTML = '⏳ Testing full flow...';
+            
+            try {
+                // 1. Add comment
+                const addResponse = await fetch(`${API_BASE}/add-comment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nome: 'Flow Test User',
+                        email: 'flow@test.com',
+                        comentario: 'Full flow test comment at ' + new Date().toISOString()
+                    })
+                });
+                
+                const addResult = await addResponse.json();
+                console.log('1. Add result:', addResult);
+                
+                if (!addResponse.ok) {
+                    throw new Error(`Add failed: ${JSON.stringify(addResult)}`);
+                }
+                
+                // 2. Wait a bit
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 3. Get comments
+                const getResponse = await fetch(`${API_BASE}/get-comments`);
+                const getResult = await getResponse.json();
+                console.log('2. Get result:', getResult);
+                
+                if (!getResponse.ok) {
+                    throw new Error(`Get failed: ${JSON.stringify(getResult)}`);
+                }
+                
+                resultDiv.innerHTML = `✅ Flow Success!<br>Added: ${JSON.stringify(addResult)}<br>Got ${getResult.total || 0} total comments`;
+                resultDiv.className = 'result success';
+                
+            } catch (error) {
+                console.error('Full flow error:', error);
+                resultDiv.innerHTML = `❌ Flow Error: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Auto-run get comments on load
+        window.addEventListener('load', () => {
+            console.log('Debug page loaded, testing get comments...');
+            testGetComments();
+        });
+    </script>
+</body>
+</html>
