@@ -29,10 +29,10 @@ function initDatabase() {
                 )
             `, (err) => {
                 if (err) {
-                    console.error('Erro ao criar tabela:', err);
+                    console.error('❌ Erro ao criar tabela:', err);
                     reject(err);
                 } else {
-                    console.log('Banco inicializado com sucesso');
+                    console.log('✅ Tabela comentarios criada/verificada com sucesso');
                     resolve(db);
                 }
             });
@@ -127,6 +127,7 @@ exports.handler = async (event, context) => {
 
         // Inserir comentário
         return new Promise((resolve) => {
+            console.log('💾 Tentando inserir comentário:', { nome, email, comentario });
             db.run(
                 'INSERT INTO comentarios (nome, email, comentario) VALUES (?, ?, ?)',
                 [nome.trim(), email.trim(), comentario.trim()],
@@ -134,7 +135,7 @@ exports.handler = async (event, context) => {
                     db.close();
                     
                     if (err) {
-                        console.error('Erro ao inserir comentário:', err);
+                        console.error('❌ Erro ao inserir comentário:', err);
                         resolve({
                             statusCode: 500,
                             headers,
@@ -144,7 +145,7 @@ exports.handler = async (event, context) => {
                             })
                         });
                     } else {
-                        console.log('Comentário inserido com ID:', this.lastID);
+                        console.log('✅ Comentário inserido com sucesso! ID:', this.lastID);
                         resolve({
                             statusCode: 200,
                             headers,

@@ -28,10 +28,10 @@ function initDatabase() {
                 )
             `, (err) => {
                 if (err) {
-                    console.error('Erro ao criar tabela:', err);
+                    console.error('❌ Erro ao criar tabela:', err);
                     reject(err);
                 } else {
-                    console.log('Banco inicializado com sucesso');
+                    console.log('✅ Tabela comentarios criada/verificada com sucesso (get-comments)');
                     resolve(db);
                 }
             });
