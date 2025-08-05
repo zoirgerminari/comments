@@ -9,8 +9,7 @@
     "deploy": "netlify deploy --prod"
   },
   "dependencies": {
-    "sqlite3": "^5.1.6",
-    "faunadb": "^4.8.0"
+    "@netlify/neon": "^0.10.1"
   },
   "devDependencies": {
     "netlify-cli": "^17.0.0"

@@ -38,8 +38,20 @@ exports.handler = async (event, context) => {
     try {
         // Verificar se a chave do FaunaDB existe
         if (!process.env.FAUNADB_SECRET) {
-            throw new Error('FaunaDB secret não configurado');
+            console.error('❌ FAUNADB_SECRET não configurado!');
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({
+                    success: false,
+                    message: 'FaunaDB não configurado. Configure a variável FAUNADB_SECRET no Netlify.',
+                    debug: 'Environment variable FAUNADB_SECRET is missing',
+                    help: 'Vá para Netlify Dashboard > Site Settings > Environment Variables > Add: FAUNADB_SECRET'
+                })
+            };
         }
+
+        console.log('✅ FaunaDB secret encontrado, conectando...');
 
         // Conectar ao FaunaDB
         const client = new faunadb.Client({
