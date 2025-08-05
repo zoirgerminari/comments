@@ -519,17 +519,25 @@
                     } else {
                         // MODO NETLIFY: Carregar do banco de dados
                         console.log('🔍 Tentando carregar comentários do banco...');
-                        const response = await fetch(`${this.API_BASE_URL}/get-comments`);
                         
-                        console.log('📡 Response status:', response.status);
-                        
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+                        try {
+                            const response = await fetch(`${this.API_BASE_URL}/get-comments`);
+                            
+                            console.log('📡 Response status:', response.status);
+                            
+                            if (!response.ok) {
+                                console.warn('⚠️ API não disponível, mostrando mensagem padrão');
+                                this.displayComments([]);
+                                return;
+                            }
 
-                        const data = await response.json();
-                        console.log('📄 Data received:', data);
-                        this.displayComments(data.comments || []);
+                            const data = await response.json();
+                            console.log('📄 Data received:', data);
+                            this.displayComments(data.comments || []);
+                        } catch (fetchError) {
+                            console.warn('⚠️ Erro ao conectar com API:', fetchError);
+                            this.displayComments([]);
+                        }
                     }
                     
                 } catch (error) {
@@ -539,13 +547,22 @@
             }
 
             displayComments(comments) {
+                console.log('🎨 displayComments chamado com:', comments);
                 const container = document.getElementById('commentsContainer');
                 
+                if (!container) {
+                    console.error('❌ Container commentsContainer não encontrado!');
+                    return;
+                }
+                
                 if (!comments || comments.length === 0) {
+                    console.log('💬 Nenhum comentário, mostrando mensagem padrão');
                     container.innerHTML = '<div class="no-comments">No comments yet. Be the first to comment!</div>';
                     return;
                 }
 
+                console.log('📝 Renderizando', comments.length, 'comentários');
+                
                 // Sort comments by date (newest first)
                 const sortedComments = comments.sort((a, b) => {
                     return new Date(b.data || b.timestamp) - new Date(a.data || a.timestamp);
@@ -556,6 +573,8 @@
                         ${sortedComments.map(comment => this.createCommentHTML(comment)).join('')}
                     </div>
                 `;
+                
+                console.log('✅ Comentários renderizados com sucesso');
             }
 
             createCommentHTML(comment) {
