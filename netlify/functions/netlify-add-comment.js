@@ -2,9 +2,9 @@
 // 🗄️ NETLIFY NEON POSTGRESQL - ADD COMMENT
 // ========================================
 
-const { neon } = require('@netlify/neon');
+import { neon } from '@netlify/neon';
 
-exports.handler = async (event, context) => {
+export default async (request, context) => {
     // Headers CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -14,63 +14,58 @@ exports.handler = async (event, context) => {
     };
 
     // Preflight request
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({ message: 'OK' })
-        };
+    if (request.method === 'OPTIONS') {
+        return new Response(JSON.stringify({ message: 'OK' }), {
+            status: 200,
+            headers
+        });
     }
 
     // Apenas POST permitido
-    if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers,
-            body: JSON.stringify({ 
-                success: false, 
-                message: 'Método não permitido' 
-            })
-        };
+    if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ 
+            success: false, 
+            message: 'Método não permitido' 
+        }), {
+            status: 405,
+            headers
+        });
     }
 
     try {
         // Parse do body
-        const comment = JSON.parse(event.body);
+        const comment = await request.json();
         
         // Validação dos campos obrigatórios
         if (!comment.nome || !comment.email || !comment.comentario) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({
-                    success: false,
-                    message: 'Campos obrigatórios: nome, email, comentario'
-                })
-            };
+            return new Response(JSON.stringify({
+                success: false,
+                message: 'Campos obrigatórios: nome, email, comentario'
+            }), {
+                status: 400,
+                headers
+            });
         }
 
         // Validações adicionais
         if (comment.nome.length < 2) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({
-                    success: false,
-                    message: 'Nome deve ter pelo menos 2 caracteres'
-                })
-            };
+            return new Response(JSON.stringify({
+                success: false,
+                message: 'Nome deve ter pelo menos 2 caracteres'
+            }), {
+                status: 400,
+                headers
+            });
         }
 
         if (comment.comentario.length < 10) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({
-                    success: false,
-                    message: 'Comentário deve ter pelo menos 10 caracteres'
-                })
-            };
+            return new Response(JSON.stringify({
+                success: false,
+                message: 'Comentário deve ter pelo menos 10 caracteres'
+            }), {
+                status: 400,
+                headers
+            });
         }
 
         // Conectar ao banco Neon PostgreSQL
@@ -91,40 +86,39 @@ exports.handler = async (event, context) => {
         // Inserir novo comentário
         const [newComment] = await sql`
             INSERT INTO comments (nome, email, comentario, ip)
-            VALUES (${comment.nome.trim()}, ${comment.email.trim()}, ${comment.comentario.trim()}, ${event.headers['x-forwarded-for'] || 'unknown'})
+            VALUES (${comment.nome.trim()}, ${comment.email.trim()}, ${comment.comentario.trim()}, ${request.headers.get('x-forwarded-for') || 'unknown'})
             RETURNING id, nome, email, comentario, data
         `;
 
         console.log(`✅ Comentário salvo no PostgreSQL! ID: ${newComment.id}`);
         console.log('💾 Comentário completo:', newComment);
 
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                success: true,
-                message: 'Comentário adicionado com sucesso!',
-                id: newComment.id,
-                comment: newComment,
-                debug: {
-                    timestamp: new Date().toISOString(),
-                    tableCreated: true,
-                    insertExecuted: true
-                }
-            })
-        };
+        return new Response(JSON.stringify({
+            success: true,
+            message: 'Comentário adicionado com sucesso!',
+            id: newComment.id,
+            comment: newComment,
+            debug: {
+                timestamp: new Date().toISOString(),
+                tableCreated: true,
+                insertExecuted: true,
+                functionType: 'netlify-add-comment-v2'
+            }
+        }), {
+            status: 200,
+            headers
+        });
 
     } catch (error) {
         console.error('❌ Erro:', error);
         
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                success: false,
-                message: 'Erro interno do servidor',
-                error: error.message
-            })
-        };
+        return new Response(JSON.stringify({
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message
+        }), {
+            status: 500,
+            headers
+        });
     }
 };
