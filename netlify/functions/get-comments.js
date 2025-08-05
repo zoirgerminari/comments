@@ -3,9 +3,50 @@
 // ========================================
 
 const sqlite3 = require('sqlite3').verbose();
+const sharedCache = require('./shared-cache');
 
 // Configuração do banco
 const DB_PATH = '/tmp/comentarios.db';
+
+// Lista temporária compartilhada (funciona durante a sessão do Netlify)
+let commentsCache = [];
+
+// Função para obter comentários do cache e banco
+async function getComments() {
+    console.log('🔍 Buscando comentários...');
+    console.log('📦 Cache atual:', commentsCache);
+    
+    // Se há comentários no cache, usar eles
+    if (commentsCache.length > 0) {
+        console.log('✅ Retornando comentários do cache');
+        return commentsCache;
+    }
+    
+    // Tentar buscar do banco SQLite
+    try {
+        const db = await initDatabase();
+        return new Promise((resolve) => {
+            db.all(
+                'SELECT id, nome, comentario, data_criacao as data FROM comentarios ORDER BY data_criacao DESC LIMIT 50',
+                [],
+                (err, rows) => {
+                    db.close();
+                    if (!err && rows.length > 0) {
+                        console.log('✅ Comentários encontrados no banco SQLite:', rows.length);
+                        commentsCache = rows; // Atualizar cache
+                        resolve(rows);
+                    } else {
+                        console.log('📭 Nenhum comentário encontrado');
+                        resolve([]);
+                    }
+                }
+            );
+        });
+    } catch (error) {
+        console.warn('⚠️ Erro ao acessar banco SQLite:', error);
+        return [];
+    }
+}
 
 // Inicializar banco
 function initDatabase() {
@@ -70,43 +111,19 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        // Conectar ao banco
-        const db = await initDatabase();
-
-        // Buscar comentários
-        return new Promise((resolve) => {
-            db.all(
-                'SELECT id, nome, comentario, data_criacao as data FROM comentarios ORDER BY data_criacao DESC LIMIT 50',
-                [],
-                (err, rows) => {
-                    db.close();
-                    
-                    if (err) {
-                        console.error('Erro ao buscar comentários:', err);
-                        resolve({
-                            statusCode: 500,
-                            headers,
-                            body: JSON.stringify({
-                                success: false,
-                                message: 'Erro interno do servidor'
-                            })
-                        });
-                    } else {
-                        console.log(`Encontrados ${rows.length} comentários`);
-                        console.log('📄 Dados dos comentários:', rows);
-                        resolve({
-                            statusCode: 200,
-                            headers,
-                            body: JSON.stringify({
-                                success: true,
-                                comments: rows,
-                                total: rows.length
-                            })
-                        });
-                    }
-                }
-            );
-        });
+        // Buscar comentários do cache
+        const comments = sharedCache.getCache();
+        console.log('📦 Comentários do cache:', comments.length);
+        
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                comments: comments,
+                total: comments.length
+            })
+        };
 
     } catch (error) {
         console.error('Erro geral:', error);
