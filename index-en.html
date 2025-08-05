@@ -275,27 +275,6 @@
         .message.error {
             background: linear-gradient(45deg, #e74c3c, #c0392b);
         }
-
-        .mode-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: white;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .mode-indicator.local {
-            background: linear-gradient(45deg, #f39c12, #e67e22);
-        }
-
-        .mode-indicator.netlify {
-            background: linear-gradient(45deg, #00c7b7, #00a085);
-        }
     </style>
 </head>
 <body>
@@ -303,7 +282,6 @@
         <header>
             <h1>💬 Comments System</h1>
             <p>Share your thoughts with us!</p>
-            <div id="modeIndicator" class="mode-indicator"></div>
         </header>
 
         <main>
@@ -350,27 +328,13 @@
         class CommentsSystem {
             constructor() {
                 this.API_BASE_URL = '/.netlify/functions';
-                this.localComments = []; // Para armazenar comentários localmente
-                this.isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 this.init();
             }
 
             init() {
                 console.log('🚀 Starting comments system...');
-                this.showModeIndicator();
                 this.setupEventListeners();
                 this.loadComments();
-            }
-
-            showModeIndicator() {
-                const indicator = document.getElementById('modeIndicator');
-                if (this.isLocal) {
-                    indicator.textContent = '🏠 Local Mode';
-                    indicator.className = 'mode-indicator local';
-                } else {
-                    indicator.textContent = '☁️ Netlify Mode';
-                    indicator.className = 'mode-indicator netlify';
-                }
             }
 
             setupEventListeners() {
@@ -405,14 +369,7 @@
                     
                     this.showMessage('Comment submitted successfully!', 'success');
                     event.target.reset();
-                    
-                    if (this.isLocal) {
-                        // MODO LOCAL: Atualizar imediatamente a exibição
-                        this.displayComments(this.localComments);
-                    } else {
-                        // MODO NETLIFY: Recarregar comentários do banco
-                        await this.loadComments();
-                    }
+                    await this.loadComments();
                     
                 } catch (error) {
                     console.error('Error submitting comment:', error);
@@ -448,80 +405,36 @@
             }
 
             async submitComment(comment) {
-                if (this.isLocal) {
-                    // MODO LOCAL: Armazenar na memória
-                    const newComment = {
-                        ...comment,
-                        data: new Date().toISOString()
-                    };
-                    
-                    // Adicionar ao início da lista (mais recente primeiro)
-                    this.localComments.unshift(newComment);
-                    
-                    // Simular delay de envio
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    return { success: true, message: 'Comment added successfully!' };
-                } else {
-                    // MODO NETLIFY: Usar banco de dados via API
-                    const response = await fetch(`${this.API_BASE_URL}/add-comment`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(comment)
-                    });
+                const response = await fetch(`${this.API_BASE_URL}/add-comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(comment)
+                });
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    if (!result.success) {
-                        throw new Error(result.message || 'Error submitting comment');
-                    }
-
-                    return result;
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message || 'Error submitting comment');
+                }
+
+                return result;
             }
 
             async loadComments() {
                 try {
-                    if (this.isLocal) {
-                        // MODO LOCAL: Comentários de exemplo (apenas se ainda não tiver comentários)
-                        if (this.localComments.length === 0) {
-                            this.localComments = [
-                                {
-                                    nome: 'John Smith',
-                                    comentario: 'Great system! Very easy to use and the design looks amazing.',
-                                    data: '2025-08-05T14:30:00Z'
-                                },
-                                {
-                                    nome: 'Mary Johnson',
-                                    comentario: 'I love the animations and colors. Excellent work!',
-                                    data: '2025-08-05T13:15:00Z'
-                                },
-                                {
-                                    nome: 'Peter Williams',
-                                    comentario: 'Very intuitive interface. Worked perfectly on mobile too.',
-                                    data: '2025-08-05T12:45:00Z'
-                                }
-                            ];
-                        }
-                        
-                        // Exibir comentários locais imediatamente
-                        this.displayComments(this.localComments);
-                    } else {
-                        // MODO NETLIFY: Carregar do banco de dados
-                        const response = await fetch(`${this.API_BASE_URL}/get-comments`);
-                        
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-
-                        const data = await response.json();
-                        this.displayComments(data.comments || []);
+                    const response = await fetch(`${this.API_BASE_URL}/get-comments`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
+
+                    const data = await response.json();
+                    this.displayComments(data.comments || []);
                     
                 } catch (error) {
                     console.error('Error loading comments:', error);
