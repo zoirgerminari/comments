@@ -352,6 +352,7 @@
                 this.API_BASE_URL = '/.netlify/functions';
                 this.localComments = []; // Para armazenar comentários localmente
                 this.isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                this.storageKey = 'comments-system-cache';
                 this.init();
             }
 
@@ -359,7 +360,29 @@
                 console.log('🚀 Starting comments system...');
                 this.showModeIndicator();
                 this.setupEventListeners();
+                this.loadFromLocalStorage();
                 this.loadComments();
+            }
+            
+            loadFromLocalStorage() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (stored) {
+                        this.localComments = JSON.parse(stored);
+                        console.log('📱 Carregados', this.localComments.length, 'comentários do localStorage');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Erro ao carregar localStorage:', error);
+                }
+            }
+            
+            saveToLocalStorage() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.localComments));
+                    console.log('💾 Comentários salvos no localStorage');
+                } catch (error) {
+                    console.warn('⚠️ Erro ao salvar localStorage:', error);
+                }
             }
 
             showModeIndicator() {
@@ -489,6 +512,18 @@
                         throw new Error(result.message || 'Error submitting comment');
                     }
 
+                    // Adicionar ao cache local também para exibição imediata
+                    const newComment = {
+                        id: result.id || Date.now(),
+                        nome: comment.nome,
+                        comentario: comment.comentario,
+                        data: new Date().toISOString()
+                    };
+                    
+                    this.localComments.unshift(newComment);
+                    this.saveToLocalStorage();
+                    console.log('💾 Comentário adicionado ao cache local para exibição');
+
                     return result;
                 }
             }
@@ -496,7 +531,7 @@
             async loadComments() {
                 try {
                     if (this.isLocal) {
-                        // MODO LOCAL: Começar com lista vazia
+                        // MODO LOCAL: Usar comentários locais + localStorage
                         this.displayComments(this.localComments);
                     } else {
                         // MODO NETLIFY: Carregar do banco de dados
@@ -508,23 +543,27 @@
                             console.log('📡 Response status:', response.status);
                             
                             if (!response.ok) {
-                                console.warn('⚠️ API não disponível');
-                                this.displayComments([]);
+                                console.warn('⚠️ API não disponível, usando localStorage');
+                                this.displayComments(this.localComments);
                                 return;
                             }
 
                             const data = await response.json();
                             console.log('📄 Data received:', data);
                             
-                            if (data.success && data.comments) {
+                            if (data.success && data.comments && data.comments.length > 0) {
+                                // Usar dados da API e atualizar localStorage
+                                this.localComments = data.comments;
+                                this.saveToLocalStorage();
                                 this.displayComments(data.comments);
                             } else {
-                                console.warn('⚠️ Dados inválidos recebidos da API');
-                                this.displayComments([]);
+                                // Usar localStorage como fallback
+                                console.warn('⚠️ API retornou vazio, usando localStorage de backup');
+                                this.displayComments(this.localComments);
                             }
                         } catch (fetchError) {
-                            console.warn('⚠️ Erro ao conectar com API:', fetchError);
-                            this.displayComments([]);
+                            console.warn('⚠️ Erro ao conectar com API, usando localStorage:', fetchError);
+                            this.displayComments(this.localComments);
                         }
                     }
                     
