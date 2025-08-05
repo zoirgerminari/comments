@@ -411,6 +411,9 @@
                         this.displayComments(this.localComments);
                     } else {
                         // MODO NETLIFY: Recarregar comentários do banco
+                        console.log('🔄 Recarregando comentários após submissão...');
+                        // Pequeno delay para garantir que o banco foi atualizado
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                         await this.loadComments();
                     }
                     

@@ -93,6 +93,7 @@ exports.handler = async (event, context) => {
                         });
                     } else {
                         console.log(`Encontrados ${rows.length} comentários`);
+                        console.log('📄 Dados dos comentários:', rows);
                         resolve({
                             statusCode: 200,
                             headers,
