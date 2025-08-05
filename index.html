@@ -494,8 +494,8 @@
                 } else {
                     // MODO NETLIFY: Usar banco de dados via API
                     console.log('🚀 Enviando comentário para API...');
-                    console.log('🌐 API URL:', `${this.API_BASE_URL}/netlify-add-comment`);
-                    const response = await fetch(`${this.API_BASE_URL}/netlify-add-comment?t=${Date.now()}`, {
+                    console.log('🌐 API URL:', `${this.API_BASE_URL}/comments-add-v3`);
+                    const response = await fetch(`${this.API_BASE_URL}/comments-add-v3?t=${Date.now()}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -541,10 +541,10 @@
                     } else {
                         // MODO NETLIFY: Carregar do banco de dados
                         console.log('🔍 Tentando carregar comentários do banco...');
-                        console.log('🌐 API URL:', `${this.API_BASE_URL}/netlify-get-comments`);
+                        console.log('🌐 API URL:', `${this.API_BASE_URL}/comments-get-v3`);
                         
                         try {
-                            const response = await fetch(`${this.API_BASE_URL}/netlify-get-comments?t=${Date.now()}`);
+                            const response = await fetch(`${this.API_BASE_URL}/comments-get-v3?t=${Date.now()}`);
                             
                             console.log('📡 Response status:', response.status);
                             
