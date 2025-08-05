@@ -76,7 +76,7 @@ exports.handler = async (event, context) => {
         // Buscar comentários
         return new Promise((resolve) => {
             db.all(
-                'SELECT id, nome, comentario, data_criacao FROM comentarios ORDER BY data_criacao DESC LIMIT 50',
+                'SELECT id, nome, comentario, data_criacao as data FROM comentarios ORDER BY data_criacao DESC LIMIT 50',
                 [],
                 (err, rows) => {
                     db.close();
@@ -98,7 +98,7 @@ exports.handler = async (event, context) => {
                             headers,
                             body: JSON.stringify({
                                 success: true,
-                                comentarios: rows,
+                                comments: rows,
                                 total: rows.length
                             })
                         });

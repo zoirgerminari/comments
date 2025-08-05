@@ -551,7 +551,13 @@
 
                             const data = await response.json();
                             console.log('📄 Data received:', data);
-                            this.displayComments(data.comments || []);
+                            
+                            if (data.success && data.comments) {
+                                this.displayComments(data.comments);
+                            } else {
+                                console.warn('⚠️ Dados inválidos recebidos da API');
+                                this.displayComments([]);
+                            }
                         } catch (fetchError) {
                             console.warn('⚠️ Erro ao conectar com API:', fetchError);
                             // Comentários fictícios para teste quando há erro de conexão
@@ -609,12 +615,13 @@
             }
 
             createCommentHTML(comment) {
-                const date = this.formatDate(comment.data || comment.timestamp);
+                console.log('🎨 Criando HTML para comentário:', comment);
+                const date = this.formatDate(comment.data || comment.data_criacao || comment.timestamp);
                 
                 return `
                     <div class="comment-item">
                         <div class="comment-author">${this.escapeHtml(comment.nome || comment.name)}</div>
-                        <div class="comment-text">${this.escapeHtml(comment.comentario || comment.comments)}</div>
+                        <div class="comment-text">${this.escapeHtml(comment.comentario || comment.comment || comment.comments)}</div>
                         <div class="comment-date">${date}</div>
                     </div>
                 `;
