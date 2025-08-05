@@ -493,28 +493,7 @@
             async loadComments() {
                 try {
                     if (this.isLocal) {
-                        // MODO LOCAL: Comentários de exemplo (apenas se ainda não tiver comentários)
-                        if (this.localComments.length === 0) {
-                            this.localComments = [
-                                {
-                                    nome: 'John Smith',
-                                    comentario: 'Great system! Very easy to use and the design looks amazing.',
-                                    data: '2025-08-05T14:30:00Z'
-                                },
-                                {
-                                    nome: 'Mary Johnson',
-                                    comentario: 'I love the animations and colors. Excellent work!',
-                                    data: '2025-08-05T13:15:00Z'
-                                },
-                                {
-                                    nome: 'Peter Williams',
-                                    comentario: 'Very intuitive interface. Worked perfectly on mobile too.',
-                                    data: '2025-08-05T12:45:00Z'
-                                }
-                            ];
-                        }
-                        
-                        // Exibir comentários locais imediatamente
+                        // MODO LOCAL: Começar com lista vazia
                         this.displayComments(this.localComments);
                     } else {
                         // MODO NETLIFY: Carregar do banco de dados
@@ -526,26 +505,8 @@
                             console.log('📡 Response status:', response.status);
                             
                             if (!response.ok) {
-                                console.warn('⚠️ API não disponível, mostrando comentários fictícios para teste');
-                                // Comentários fictícios para teste no Netlify
-                                const fakeComments = [
-                                    {
-                                        nome: 'Maria Silva',
-                                        comentario: 'This system is working perfectly on Netlify! Amazing job with the responsive design.',
-                                        data: '2025-08-05T16:30:00Z'
-                                    },
-                                    {
-                                        nome: 'João Santos',
-                                        comentario: 'Love the gradient colors and smooth animations. The form validation is spot on!',
-                                        data: '2025-08-05T15:45:00Z'
-                                    },
-                                    {
-                                        nome: 'Ana Costa',
-                                        comentario: 'Great work! The system detects Netlify mode automatically. Very impressive!',
-                                        data: '2025-08-05T14:20:00Z'
-                                    }
-                                ];
-                                this.displayComments(fakeComments);
+                                console.warn('⚠️ API não disponível');
+                                this.displayComments([]);
                                 return;
                             }
 
@@ -560,20 +521,7 @@
                             }
                         } catch (fetchError) {
                             console.warn('⚠️ Erro ao conectar com API:', fetchError);
-                            // Comentários fictícios para teste quando há erro de conexão
-                            const fakeComments = [
-                                {
-                                    nome: 'Test User 1',
-                                    comentario: 'API connection failed, but showing fallback comments for testing purposes.',
-                                    data: '2025-08-05T16:00:00Z'
-                                },
-                                {
-                                    nome: 'Test User 2',
-                                    comentario: 'These are fictional comments to test the display functionality.',
-                                    data: '2025-08-05T15:30:00Z'
-                                }
-                            ];
-                            this.displayComments(fakeComments);
+                            this.displayComments([]);
                         }
                     }
                     
