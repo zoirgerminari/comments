@@ -1,8 +1,8 @@
 // ========================================
-// �️ NETLIFY NEON POSTGRESQL - ADD COMMENT
+// 🗄️ NETLIFY NEON POSTGRESQL - ADD COMMENT
 // ========================================
 
-import { neon } from '@netlify/neon';
+const { neon } = require('@netlify/neon');
 
 exports.handler = async (event, context) => {
     // Headers CORS
