@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test - Comments System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .comment {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .comment-author {
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+        
+        .comment-text {
+            margin: 10px 0;
+        }
+        
+        .comment-date {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .success { background: rgba(76, 175, 80, 0.3); color: #4caf50; }
+        .error { background: rgba(244, 67, 54, 0.3); color: #f44336; }
+        .info { background: rgba(33, 150, 243, 0.3); color: #2196f3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Test Comments System</h1>
+        
+        <div id="status" class="status info">
+            Testing both Netlify functions and localStorage...
+        </div>
+        
+        <h2>📝 Add Comment</h2>
+        <form id="commentForm">
+            <div class="form-group">
+                <label for="nome">Name:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="comentario">Comment:</label>
+                <textarea id="comentario" name="comentario" rows="4" required></textarea>
+            </div>
+            
+            <button type="submit">Submit Comment</button>
+        </form>
+        
+        <h2>💬 Comments</h2>
+        <div id="comments">
+            <div class="status info">Loading comments...</div>
+        </div>
+        
+        <h2>🔧 Debug Info</h2>
+        <div id="debug" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px;">
+            <div>URL: <span id="currentUrl"></span></div>
+            <div>Mode: <span id="currentMode"></span></div>
+            <div>API Base: <span id="apiBase"></span></div>
+            <div>LocalStorage: <span id="localStorageInfo"></span></div>
+        </div>
+    </div>
+
+    <script>
+        class SimpleCommentsTest {
+            constructor() {
+                this.API_BASE_URL = '/.netlify/functions';
+                this.isLocal = window.location.protocol === 'file:' || 
+                              window.location.hostname === 'localhost' || 
+                              window.location.hostname === '127.0.0.1';
+                this.localComments = [];
+                this.storageKey = 'test-comments';
+                
+                this.init();
+            }
+            
+            init() {
+                this.updateDebugInfo();
+                this.loadFromLocalStorage();
+                this.setupEventListeners();
+                this.loadComments();
+            }
+            
+            updateDebugInfo() {
+                document.getElementById('currentUrl').textContent = window.location.href;
+                document.getElementById('currentMode').textContent = this.isLocal ? 'Local' : 'Netlify';
+                document.getElementById('apiBase').textContent = this.API_BASE_URL;
+                
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    const count = stored ? JSON.parse(stored).length : 0;
+                    document.getElementById('localStorageInfo').textContent = `${count} comments stored`;
+                } catch (e) {
+                    document.getElementById('localStorageInfo').textContent = 'Error reading localStorage';
+                }
+            }
+            
+            loadFromLocalStorage() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    if (stored) {
+                        this.localComments = JSON.parse(stored);
+                        console.log('Loaded from localStorage:', this.localComments.length, 'comments');
+                    }
+                } catch (error) {
+                    console.warn('Error loading localStorage:', error);
+                    this.localComments = [];
+                }
+            }
+            
+            saveToLocalStorage() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.localComments));
+                    this.updateDebugInfo();
+                } catch (error) {
+                    console.warn('Error saving localStorage:', error);
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('commentForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSubmit(e);
+                });
+            }
+            
+            showStatus(message, type = 'info') {
+                const status = document.getElementById('status');
+                status.textContent = message;
+                status.className = `status ${type}`;
+            }
+            
+            async handleSubmit(event) {
+                const formData = new FormData(event.target);
+                const comment = {
+                    nome: formData.get('nome').trim(),
+                    email: formData.get('email').trim(),
+                    comentario: formData.get('comentario').trim()
+                };
+                
+                if (!this.validateComment(comment)) return;
+                
+                this.showStatus('Submitting comment...', 'info');
+                
+                try {
+                    await this.submitComment(comment);
+                    this.showStatus('Comment submitted successfully!', 'success');
+                    event.target.reset();
+                    this.displayComments();
+                } catch (error) {
+                    console.error('Submit error:', error);
+                    this.showStatus(`Error: ${error.message}`, 'error');
+                }
+            }
+            
+            validateComment(comment) {
+                if (!comment.nome || comment.nome.length < 2) {
+                    this.showStatus('Name must be at least 2 characters', 'error');
+                    return false;
+                }
+                if (!comment.email || !comment.email.includes('@')) {
+                    this.showStatus('Invalid email address', 'error');
+                    return false;
+                }
+                if (!comment.comentario || comment.comentario.length < 10) {
+                    this.showStatus('Comment must be at least 10 characters', 'error');
+                    return false;
+                }
+                return true;
+            }
+            
+            async submitComment(comment) {
+                // Always save to localStorage first
+                const newComment = {
+                    id: Date.now(),
+                    ...comment,
+                    data: new Date().toISOString()
+                };
+                
+                this.localComments.unshift(newComment);
+                this.saveToLocalStorage();
+                
+                if (!this.isLocal) {
+                    // Try to save to Netlify functions
+                    try {
+                        console.log('Trying Netlify function...');
+                        const response = await fetch(`${this.API_BASE_URL}/netlify-add-comment`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(comment)
+                        });
+                        
+                        console.log('Netlify response status:', response.status);
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log('Netlify success:', result);
+                            this.showStatus('Saved to database and localStorage!', 'success');
+                        } else {
+                            console.warn('Netlify failed, using localStorage only');
+                            this.showStatus('Saved to localStorage (database unavailable)', 'info');
+                        }
+                    } catch (netlifyError) {
+                        console.warn('Netlify error:', netlifyError);
+                        this.showStatus('Saved to localStorage (database unavailable)', 'info');
+                    }
+                }
+                
+                return newComment;
+            }
+            
+            async loadComments() {
+                if (this.isLocal) {
+                    this.displayComments();
+                    return;
+                }
+                
+                try {
+                    console.log('Trying to load from Netlify...');
+                    const response = await fetch(`${this.API_BASE_URL}/netlify-get-comments`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Netlify load success:', data);
+                        
+                        if (data.success && data.comments && data.comments.length > 0) {
+                            // Merge with localStorage, preferring newer data
+                            this.localComments = data.comments;
+                            this.saveToLocalStorage();
+                            this.showStatus('Loaded from database!', 'success');
+                        }
+                    } else {
+                        console.warn('Netlify load failed, using localStorage');
+                        this.showStatus('Using local storage', 'info');
+                    }
+                } catch (error) {
+                    console.warn('Netlify load error:', error);
+                    this.showStatus('Using local storage', 'info');
+                }
+                
+                this.displayComments();
+            }
+            
+            displayComments() {
+                const container = document.getElementById('comments');
+                
+                if (!this.localComments || this.localComments.length === 0) {
+                    container.innerHTML = '<div class="status info">No comments yet. Be the first to comment!</div>';
+                    return;
+                }
+                
+                const commentsHtml = this.localComments
+                    .sort((a, b) => new Date(b.data) - new Date(a.data))
+                    .map(comment => `
+                        <div class="comment">
+                            <div class="comment-author">${this.escapeHtml(comment.nome)}</div>
+                            <div class="comment-text">${this.escapeHtml(comment.comentario)}</div>
+                            <div class="comment-date">${this.formatDate(comment.data)}</div>
+                        </div>
+                    `).join('');
+                
+                container.innerHTML = commentsHtml;
+                this.updateDebugInfo();
+            }
+            
+            formatDate(dateString) {
+                try {
+                    return new Date(dateString).toLocaleString();
+                } catch (e) {
+                    return dateString || 'Unknown date';
+                }
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SimpleCommentsTest();
+        });
+    </script>
+</body>
+</html>
