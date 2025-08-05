@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Direct API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #fff;
+        }
+        .test {
+            background: #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .result {
+            background: #222;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Direct API Debug Test</h1>
+    
+    <div class="test">
+        <h3>Test 1: Direct GET to netlify-get-comments</h3>
+        <button onclick="testGet()">Test GET</button>
+        <div id="getResult" class="result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Test 2: Direct POST to netlify-add-comment</h3>
+        <button onclick="testAdd()">Test ADD</button>
+        <div id="addResult" class="result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>Test 3: Check all available functions</h3>
+        <button onclick="testFunctions()">List Functions</button>
+        <div id="functionsResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/.netlify/functions';
+        
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.textContent += `[${timestamp}] ${message}\n`;
+        }
+        
+        async function testGet() {
+            const resultId = 'getResult';
+            document.getElementById(resultId).textContent = '';
+            
+            const url = `${API_BASE}/netlify-get-comments`;
+            log(resultId, `Testing URL: ${url}`);
+            
+            try {
+                const response = await fetch(url);
+                log(resultId, `Response status: ${response.status}`);
+                log(resultId, `Response headers: ${JSON.stringify([...response.headers])}`);
+                
+                const text = await response.text();
+                log(resultId, `Response body (text): ${text}`);
+                
+                try {
+                    const json = JSON.parse(text);
+                    log(resultId, `Response body (parsed): ${JSON.stringify(json, null, 2)}`);
+                } catch (e) {
+                    log(resultId, `Failed to parse JSON: ${e.message}`);
+                }
+            } catch (error) {
+                log(resultId, `Fetch error: ${error.message}`);
+            }
+        }
+        
+        async function testAdd() {
+            const resultId = 'addResult';
+            document.getElementById(resultId).textContent = '';
+            
+            const url = `${API_BASE}/netlify-add-comment`;
+            const data = {
+                nome: 'Debug Test',
+                email: 'debug@test.com',
+                comentario: 'Test comment from debug page'
+            };
+            
+            log(resultId, `Testing URL: ${url}`);
+            log(resultId, `POST data: ${JSON.stringify(data, null, 2)}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                log(resultId, `Response status: ${response.status}`);
+                
+                const text = await response.text();
+                log(resultId, `Response body (text): ${text}`);
+                
+                try {
+                    const json = JSON.parse(text);
+                    log(resultId, `Response body (parsed): ${JSON.stringify(json, null, 2)}`);
+                } catch (e) {
+                    log(resultId, `Failed to parse JSON: ${e.message}`);
+                }
+            } catch (error) {
+                log(resultId, `Fetch error: ${error.message}`);
+            }
+        }
+        
+        async function testFunctions() {
+            const resultId = 'functionsResult';
+            document.getElementById(resultId).textContent = '';
+            
+            // Test common function names
+            const functionNames = [
+                'netlify-get-comments',
+                'netlify-add-comment', 
+                'get-comments',
+                'add-comment',
+                'comments-get',
+                'comments-add'
+            ];
+            
+            for (const name of functionNames) {
+                const url = `${API_BASE}/${name}`;
+                log(resultId, `Testing ${url}...`);
+                
+                try {
+                    const response = await fetch(url);
+                    log(resultId, `  ✅ ${name}: ${response.status} ${response.statusText}`);
+                    
+                    if (response.ok) {
+                        const text = await response.text();
+                        if (text.length < 200) {
+                            log(resultId, `  📄 Response: ${text}`);
+                        } else {
+                            log(resultId, `  📄 Response: ${text.substring(0, 100)}...`);
+                        }
+                    }
+                } catch (error) {
+                    log(resultId, `  ❌ ${name}: ${error.message}`);
+                }
+                
+                // Small delay to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+    </script>
+</body>
+</html>
