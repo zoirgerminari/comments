@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💬 Comments System - GitHub Database</title>
+    <title>Comments System</title>
     <style>
         * {
             margin: 0;
@@ -12,422 +12,224 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
-            line-height: 1.6;
             padding: 20px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
-        header {
+        .header {
             text-align: center;
-            margin-bottom: 40px;
             color: white;
-            position: relative;
-        }
-
-        header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.3); }
-            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.6); }
-        }
-
-        header p {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            margin-bottom: 20px;
-        }
-
-        .github-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 12px 25px;
-            border-radius: 25px;
-            display: inline-block;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            font-weight: bold;
-            margin: 10px;
-        }
-
-        .database-status {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
             margin-bottom: 30px;
-            font-weight: bold;
-            animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-
-        .form-section, .comments-section {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(15px);
-            padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .form-section:hover, .comments-section:hover {
-            transform: translateY(-5px);
-        }
-
-        .section-title {
-            color: #667eea;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .form-group {
-            margin-bottom: 25px;
-            position: relative;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            transition: all 0.3s ease;
-            background: #fafbfc;
         }
 
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
         }
 
         .form-group textarea {
-            min-height: 120px;
+            min-height: 100px;
             resize: vertical;
-            font-family: inherit;
         }
 
         .btn-submit {
             width: 100%;
-            padding: 18px;
+            padding: 15px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .btn-submit:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            opacity: 0.9;
         }
 
         .btn-submit:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .comments-list {
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 10px;
+        .comments-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .comment-item {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .comment-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
         }
 
         .comment-author {
             font-weight: bold;
             color: #667eea;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 10px;
         }
 
         .comment-text {
-            color: #495057;
-            margin-bottom: 15px;
-            line-height: 1.7;
-            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.6;
         }
 
         .comment-date {
             font-size: 0.9rem;
-            color: #6c757d;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #666;
         }
 
         .message {
-            padding: 18px;
-            border-radius: 12px;
-            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
             text-align: center;
-            font-weight: 600;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            font-weight: bold;
         }
 
         .message.success {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            background: #d4edda;
             color: #155724;
-            border: 2px solid #b8dabc;
+            border: 1px solid #c3e6cb;
         }
 
         .message.error {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            background: #f8d7da;
             color: #721c24;
-            border: 2px solid #f1b0b7;
+            border: 1px solid #f5c6cb;
         }
 
         .message.info {
-            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            background: #d1ecf1;
             color: #0c5460;
-            border: 2px solid #b8daff;
+            border: 1px solid #bee5eb;
         }
 
-        .no-comments {
+        .loading {
             text-align: center;
-            padding: 50px;
-            color: #6c757d;
-            font-style: italic;
-            font-size: 1.2rem;
+            padding: 20px;
+            color: #666;
         }
 
         .stats {
-            background: rgba(255,255,255,0.9);
+            background: #f8f9fa;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
             font-weight: bold;
             color: #667eea;
         }
-
-        .comment-counter {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #667eea;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #667eea;
-            font-size: 1.2rem;
-        }
-
-        .loading::before {
-            content: "⏳ ";
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Scrollbar personalizada */
-        .comments-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .comments-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .comments-list::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 10px;
-        }
-
-        .comments-list::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
+        <div class="header">
             <h1>💬 Comments System</h1>
-            <p>Powered by GitHub Database & JSON API</p>
-            <div class="github-badge">
-                🗄️ GitHub JSON Database
-            </div>
-            <div class="github-badge">
-                🔗 Real-time Sync
-            </div>
-        </header>
-
-        <div class="database-status" id="dbStatus">
-            🔄 Connecting to GitHub Database...
+            <p>Powered by GitHub Database</p>
         </div>
 
-        <div class="main-grid">
-            <!-- Form Section -->
-            <div class="form-section">
-                <h2 class="section-title">
-                    ✍️ Add Comment to GitHub DB
-                </h2>
-                <form id="commentForm">
-                    <div class="form-group">
-                        <label for="name">👤 Your Name</label>
-                        <input type="text" id="name" name="name" required minlength="2" placeholder="Enter your name">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="comment">💭 Your Comment</label>
-                        <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts... (will be saved to GitHub JSON database)"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn-submit" id="submitBtn">
-                        <span>🚀 Save to GitHub Database</span>
-                    </button>
-                </form>
-            </div>
+        <div class="form-section">
+            <h2>✍️ Add Comment</h2>
+            <form id="commentForm">
+                <div class="form-group">
+                    <label for="name">👤 Your Name</label>
+                    <input type="text" id="name" name="name" required minlength="2" placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">💭 Your Comment</label>
+                    <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    🚀 Save Comment
+                </button>
+            </form>
+        </div>
 
-            <!-- Comments Section -->
-            <div class="comments-section">
-                <h2 class="section-title">
-                    💭 Comments from GitHub DB
-                    <span class="comment-counter" id="commentCounter">0</span>
-                </h2>
-                <div class="stats" id="stats">
-                    📊 Loading from GitHub...
-                </div>
-                <div class="comments-list" id="commentsContainer">
-                    <div class="loading">Loading comments from GitHub database...</div>
-                </div>
+        <div class="comments-section">
+            <h2>💭 Comments</h2>
+            <div class="stats" id="stats">Loading...</div>
+            <div id="commentsContainer">
+                <div class="loading">Loading comments...</div>
             </div>
         </div>
     </div>
 
     <script>
-        class GitHubDatabaseComments {
+        class SimpleComments {
             constructor() {
-                this.owner = 'zoirgerminari';
-                this.repo = 'comments';
-                this.branch = 'gh-pages';
-                this.dbFile = 'comments-db.json';
-                this.apiBase = 'https://api.github.com';
-                this.rawBase = 'https://raw.githubusercontent.com';
                 this.comments = [];
                 this.init();
             }
 
             async init() {
-                console.log('🚀 Initializing GitHub Database Comments System...');
-                this.updateDbStatus('🔄 Connecting to GitHub...', 'info');
+                console.log('🚀 Initializing Comments System...');
                 
                 try {
-                    await this.loadCommentsFromGitHub();
+                    await this.loadComments();
                     this.setupForm();
                     this.displayComments();
                     this.updateStats();
-                    this.updateDbStatus('✅ Connected to GitHub Database', 'success');
                 } catch (error) {
                     console.error('Error initializing:', error);
-                    this.updateDbStatus('❌ Error connecting to GitHub', 'error');
-                    this.loadFallbackComments();
+                    this.loadDemoComments();
                 }
             }
 
-            async loadCommentsFromGitHub() {
+            async loadComments() {
                 try {
-                    const url = `${this.rawBase}/${this.owner}/${this.repo}/${this.branch}/${this.dbFile}?t=${Date.now()}`;
-                    console.log('📡 Loading from:', url);
-                    
+                    const url = 'https://raw.githubusercontent.com/zoirgerminari/comments/gh-pages/comments-db.json?t=' + Date.now();
                     const response = await fetch(url);
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
+                    
+                    if (!response.ok) throw new Error('Failed to load');
                     
                     const data = await response.json();
                     this.comments = data.comments || [];
-                    console.log('✅ Loaded', this.comments.length, 'comments from GitHub');
+                    console.log('✅ Loaded', this.comments.length, 'comments');
                     
                 } catch (error) {
                     console.warn('⚠️ Error loading from GitHub:', error);
@@ -435,15 +237,13 @@
                 }
             }
 
-            loadFallbackComments() {
-                // Demo comments if GitHub fails
+            loadDemoComments() {
                 this.comments = [
                     {
-                        name: "GitHub User",
-                        email: "user@github.com",
-                        comment: "This is a demo comment showing the GitHub JSON database system. Comments will be saved to the repository!",
-                        date: new Date(Date.now() - 86400000).toISOString(),
-                        id: Date.now() - 1000,
+                        name: "Demo User",
+                        comment: "This is a demo comment showing the system working!",
+                        date: new Date().toISOString(),
+                        id: Date.now(),
                         source: "demo"
                     }
                 ];
@@ -454,160 +254,70 @@
             setupForm() {
                 const form = document.getElementById('commentForm');
                 if (form) {
-                    // Remove any existing listeners
-                    form.removeEventListener('submit', this.handleSubmit);
-                    
-                    // Add new listener with proper binding
                     form.addEventListener('submit', (e) => {
                         e.preventDefault();
                         this.handleSubmit(e);
                     });
-                    console.log('✅ Form event listener attached');
-                } else {
-                    console.error('❌ Form element not found');
                 }
             }
 
             async handleSubmit(event) {
-                console.log('🔧 Form submitted, processing...');
-                event.preventDefault();
+                console.log('🔧 Form submitted');
                 
-                try {
-                    console.log('📋 Event target:', event.target);
-                    
-                    const formData = new FormData(event.target);
-                    const name = formData.get('name');
-                    const commentText = formData.get('comment');
+                const formData = new FormData(event.target);
+                const name = formData.get('name');
+                const commentText = formData.get('comment');
 
-                    console.log('📝 Form data:', { name, commentText });
-                    console.log('📝 Raw form data entries:');
-                    for (let [key, value] of formData.entries()) {
-                        console.log(`  ${key}: ${value}`);
-                    }
-
-                    // Validação básica
-                    if (!name || !commentText) {
-                        console.warn('⚠️ Validation failed: missing required fields');
-                        this.showMessage('❌ Por favor, preencha nome e comentário.', 'error');
-                        return;
-                    }
-
-                    const comment = {
-                        name: name.trim(),
-                        email: 'no-email',
-                        comment: commentText.trim(),
-                        date: new Date().toISOString(),
-                        id: Date.now(),
-                        source: "github-form"
-                    };
-
-                    console.log('💬 Comment object created:', comment);
-
-                    if (!this.validateComment(comment)) {
-                        console.warn('⚠️ Comment validation failed');
-                        return;
-                    }
-
-                    console.log('✅ Validation passed, proceeding with submission...');
-
-                    const submitBtn = document.getElementById('submitBtn');
-                    if (!submitBtn) {
-                        console.error('❌ Submit button not found!');
-                        this.showMessage('❌ Erro interno: botão não encontrado', 'error');
-                        return;
-                    }
-                    
-                    const originalHTML = submitBtn.innerHTML;
-                    
-                    try {
-                        console.log('🚀 Starting submission process...');
-                        
-                        submitBtn.innerHTML = '<span>⏳ Saving to GitHub...</span>';
-                        submitBtn.disabled = true;
-
-                        // For demo - simulate GitHub save
-                        this.showMessage('💡 Demo Mode: Salvando comentário localmente...', 'info');
-                        
-                        console.log('⏳ Simulating save delay...');
-                        await new Promise(resolve => setTimeout(resolve, 1500));
-
-                        console.log('📝 Adding comment to local array...');
-                        // Add comment locally
-                        this.comments.unshift(comment);
-                        
-                        console.log('🔄 Updating display...');
-                        this.displayComments();
-                        this.updateStats();
-                        
-                        console.log('🧹 Resetting form...');
-                        // Reset form
-                        event.target.reset();
-                        
-                        // Show success message
-                        console.log('🎉 Showing success message...');
-                        this.showMessage('🎉 Comentário salvo com sucesso!', 'success');
-                        
-                    } catch (innerError) {
-                        console.error('❌ Inner error during submission:', innerError);
-                        console.error('❌ Error stack:', innerError.stack);
-                        this.showMessage('❌ Erro interno ao salvar. Detalhes no console.', 'error');
-                    } finally {
-                        console.log('🔄 Restoring button state...');
-                        try {
-                            submitBtn.innerHTML = originalHTML;
-                            submitBtn.disabled = false;
-                        } catch (btnError) {
-                            console.error('❌ Error restoring button:', btnError);
-                        }
-                    }
-                } catch (outerError) {
-                    console.error('❌ Outer form submission error:', outerError);
-                    console.error('❌ Error stack:', outerError.stack);
-                    this.showMessage('❌ Erro ao processar formulário. Veja detalhes no console.', 'error');
-                    
-                    // Try to restore button if possible
-                    try {
-                        const submitBtn = document.getElementById('submitBtn');
-                        if (submitBtn) {
-                            submitBtn.innerHTML = '<span>🚀 Save to GitHub Database</span>';
-                            submitBtn.disabled = false;
-                        }
-                    } catch (restoreError) {
-                        console.error('❌ Error restoring button after error:', restoreError);
-                    }
+                if (!name || !commentText) {
+                    this.showMessage('❌ Please fill all fields', 'error');
+                    return;
                 }
-            }            // Real GitHub API save (requires token)
-            async saveToGitHub(newComment) {
-                // This would require a GitHub token and proper API calls
-                // For demo purposes, we'll just simulate it
-                console.log('Would save to GitHub:', newComment);
+
+                if (name.length < 2) {
+                    this.showMessage('❌ Name must be at least 2 characters', 'error');
+                    return;
+                }
+
+                if (commentText.length < 10) {
+                    this.showMessage('❌ Comment must be at least 10 characters', 'error');
+                    return;
+                }
+
+                const comment = {
+                    name: name.trim(),
+                    email: 'no-email',
+                    comment: commentText.trim(),
+                    date: new Date().toISOString(),
+                    id: Date.now(),
+                    source: "form"
+                };
+
+                const submitBtn = document.getElementById('submitBtn');
+                const originalText = submitBtn.textContent;
                 
-                // Real implementation would:
-                // 1. Get current file SHA
-                // 2. Update JSON content
-                // 3. Commit back to repository
-                // 4. Handle rate limits and authentication
-            }
-
-            validateComment(comment) {
                 try {
-                    if (!comment.name || comment.name.length < 2) {
-                        this.showMessage('❌ Nome deve ter pelo menos 2 caracteres', 'error');
-                        return false;
-                    }
+                    submitBtn.textContent = '⏳ Saving...';
+                    submitBtn.disabled = true;
 
-                    // No email validation - accepts anything
+                    // Simulate save
+                    await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    if (!comment.comment || comment.comment.length < 10) {
-                        this.showMessage('❌ Comentário deve ter pelo menos 10 caracteres', 'error');
-                        return false;
-                    }
-
-                    return true;
+                    // Add locally
+                    this.comments.unshift(comment);
+                    this.displayComments();
+                    this.updateStats();
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    this.showMessage('🎉 Comment saved!', 'success');
+                    
                 } catch (error) {
-                    console.error('Validation error:', error);
-                    this.showMessage('❌ Erro na validação dos dados', 'error');
-                    return false;
+                    console.error('Error saving:', error);
+                    this.showMessage('❌ Error saving comment', 'error');
+                } finally {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
                 }
             }
 
@@ -615,61 +325,26 @@
                 const container = document.getElementById('commentsContainer');
                 
                 if (this.comments.length === 0) {
-                    container.innerHTML = '<div class="no-comments">🌟 No comments in GitHub database yet. Be the first!</div>';
+                    container.innerHTML = '<div class="loading">No comments yet. Be the first!</div>';
                     return;
                 }
 
-                // Sort comments by date (newest first)
-                const sortedComments = [...this.comments].sort((a, b) => 
-                    new Date(b.date) - new Date(a.date)
-                );
-
-                const commentsHTML = sortedComments.map(comment => `
-                    <div class="comment-item">
-                        <div class="comment-author">
-                            👤 ${this.escapeHtml(comment.name)}
-                            ${comment.source === 'demo' ? '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; margin-left: 10px;">DEMO</span>' : ''}
-                            ${comment.source === 'github-form' ? '<span style="background: #28a745; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; margin-left: 10px;">GITHUB</span>' : ''}
+                const commentsHTML = this.comments
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map(comment => `
+                        <div class="comment-item">
+                            <div class="comment-author">👤 ${this.escapeHtml(comment.name)}</div>
+                            <div class="comment-text">${this.escapeHtml(comment.comment)}</div>
+                            <div class="comment-date">📅 ${this.formatDate(comment.date)}</div>
                         </div>
-                        <div class="comment-text">${this.escapeHtml(comment.comment)}</div>
-                        <div class="comment-date">
-                            📅 ${this.formatDate(comment.date)}
-                        </div>
-                    </div>
-                `).join('');
+                    `).join('');
 
                 container.innerHTML = commentsHTML;
             }
 
             updateStats() {
                 const statsElement = document.getElementById('stats');
-                const counterElement = document.getElementById('commentCounter');
-                
-                const total = this.comments.length;
-                const today = new Date().toDateString();
-                const todayComments = this.comments.filter(c => 
-                    new Date(c.date).toDateString() === today
-                ).length;
-
-                const githubComments = this.comments.filter(c => c.source === 'github-form').length;
-                const demoComments = this.comments.filter(c => c.source === 'demo').length;
-
-                statsElement.innerHTML = `📊 Total: ${total} | GitHub: ${githubComments} | Demo: ${demoComments}`;
-                counterElement.textContent = total;
-            }
-
-            updateDbStatus(message, type) {
-                const statusElement = document.getElementById('dbStatus');
-                statusElement.textContent = message;
-                
-                // Update colors based on type
-                if (type === 'success') {
-                    statusElement.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
-                } else if (type === 'error') {
-                    statusElement.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
-                } else {
-                    statusElement.style.background = 'linear-gradient(45deg, #007bff, #6610f2)';
-                }
+                statsElement.textContent = `📊 Total Comments: ${this.comments.length}`;
             }
 
             formatDate(dateString) {
@@ -696,59 +371,27 @@
             }
 
             showMessage(message, type) {
-                try {
-                    console.log(`📢 Showing message (${type}):`, message);
-                    
-                    // Remove existing messages
-                    const existingMessages = document.querySelectorAll('.message');
-                    existingMessages.forEach(msg => {
-                        try {
-                            msg.remove();
-                        } catch (e) {
-                            console.warn('Warning removing existing message:', e);
-                        }
-                    });
+                const existingMessages = document.querySelectorAll('.message');
+                existingMessages.forEach(msg => msg.remove());
 
-                    // Create new message
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = `message ${type}`;
-                    messageDiv.innerHTML = message;
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                messageDiv.textContent = message;
 
-                    // Insert after form
-                    const formSection = document.querySelector('.form-section');
-                    if (formSection) {
-                        formSection.appendChild(messageDiv);
-                        console.log('✅ Message added to DOM');
-                    } else {
-                        console.error('❌ Form section not found for message');
-                        // Fallback: show alert
-                        alert(message);
-                        return;
+                const formSection = document.querySelector('.form-section');
+                formSection.appendChild(messageDiv);
+
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
                     }
-
-                    // Remove message after 7 seconds
-                    setTimeout(() => {
-                        try {
-                            if (messageDiv.parentNode) {
-                                messageDiv.remove();
-                                console.log('🧹 Message removed after timeout');
-                            }
-                        } catch (e) {
-                            console.warn('Warning removing message after timeout:', e);
-                        }
-                    }, 7000);
-                    
-                } catch (error) {
-                    console.error('❌ Error in showMessage:', error);
-                    // Ultimate fallback
-                    alert(`${type.toUpperCase()}: ${message}`);
-                }
+                }, 5000);
             }
         }
 
-        // Initialize when page loads
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            window.commentsSystem = new GitHubDatabaseComments();
+            new SimpleComments();
         });
     </script>
 </body>
