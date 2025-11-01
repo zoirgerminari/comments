@@ -478,15 +478,22 @@
                 event.preventDefault();
                 
                 try {
+                    console.log('📋 Event target:', event.target);
+                    
                     const formData = new FormData(event.target);
                     const name = formData.get('name');
                     const email = formData.get('email');
                     const commentText = formData.get('comment');
 
                     console.log('📝 Form data:', { name, email, commentText });
+                    console.log('📝 Raw form data entries:');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`  ${key}: ${value}`);
+                    }
 
                     // Validação básica
                     if (!name || !email || !commentText) {
+                        console.warn('⚠️ Validation failed: missing fields');
                         this.showMessage('❌ Por favor, preencha todos os campos.', 'error');
                         return;
                     }
@@ -500,46 +507,80 @@
                         source: "github-form"
                     };
 
-                    console.log('💬 Comment object:', comment);
+                    console.log('💬 Comment object created:', comment);
 
                     if (!this.validateComment(comment)) {
+                        console.warn('⚠️ Comment validation failed');
                         return;
                     }
 
+                    console.log('✅ Validation passed, proceeding with submission...');
+
                     const submitBtn = document.getElementById('submitBtn');
+                    if (!submitBtn) {
+                        console.error('❌ Submit button not found!');
+                        this.showMessage('❌ Erro interno: botão não encontrado', 'error');
+                        return;
+                    }
+                    
                     const originalHTML = submitBtn.innerHTML;
-                
                     
                     try {
+                        console.log('🚀 Starting submission process...');
+                        
                         submitBtn.innerHTML = '<span>⏳ Saving to GitHub...</span>';
                         submitBtn.disabled = true;
 
                         // For demo - simulate GitHub save
-                        this.showMessage('💡 Demo Mode: In a real implementation, this would commit to GitHub via API. For now, saving locally.', 'info');
+                        this.showMessage('💡 Demo Mode: Salvando comentário localmente...', 'info');
                         
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        console.log('⏳ Simulating save delay...');
+                        await new Promise(resolve => setTimeout(resolve, 1500));
 
+                        console.log('📝 Adding comment to local array...');
                         // Add comment locally
                         this.comments.unshift(comment);
+                        
+                        console.log('🔄 Updating display...');
                         this.displayComments();
                         this.updateStats();
                         
+                        console.log('🧹 Resetting form...');
                         // Reset form
                         event.target.reset();
                         
                         // Show success message
-                        this.showMessage('🎉 Comment saved! (In demo mode - real version would save to GitHub JSON)', 'success');
+                        console.log('🎉 Showing success message...');
+                        this.showMessage('🎉 Comentário salvo com sucesso!', 'success');
                         
-                    } catch (error) {
-                        console.error('Error saving comment:', error);
-                        this.showMessage('❌ Error saving to GitHub database. Please try again.', 'error');
+                    } catch (innerError) {
+                        console.error('❌ Inner error during submission:', innerError);
+                        console.error('❌ Error stack:', innerError.stack);
+                        this.showMessage('❌ Erro interno ao salvar. Detalhes no console.', 'error');
                     } finally {
-                        submitBtn.innerHTML = originalHTML;
-                        submitBtn.disabled = false;
+                        console.log('🔄 Restoring button state...');
+                        try {
+                            submitBtn.innerHTML = originalHTML;
+                            submitBtn.disabled = false;
+                        } catch (btnError) {
+                            console.error('❌ Error restoring button:', btnError);
+                        }
                     }
-                } catch (error) {
-                    console.error('Form submission error:', error);
-                    this.showMessage('❌ Erro ao processar formulário. Tente novamente.', 'error');
+                } catch (outerError) {
+                    console.error('❌ Outer form submission error:', outerError);
+                    console.error('❌ Error stack:', outerError.stack);
+                    this.showMessage('❌ Erro ao processar formulário. Veja detalhes no console.', 'error');
+                    
+                    // Try to restore button if possible
+                    try {
+                        const submitBtn = document.getElementById('submitBtn');
+                        if (submitBtn) {
+                            submitBtn.innerHTML = '<span>🚀 Save to GitHub Database</span>';
+                            submitBtn.disabled = false;
+                        }
+                    } catch (restoreError) {
+                        console.error('❌ Error restoring button after error:', restoreError);
+                    }
                 }
             }            // Real GitHub API save (requires token)
             async saveToGitHub(newComment) {
@@ -670,25 +711,53 @@
             }
 
             showMessage(message, type) {
-                // Remove existing messages
-                const existingMessages = document.querySelectorAll('.message');
-                existingMessages.forEach(msg => msg.remove());
+                try {
+                    console.log(`📢 Showing message (${type}):`, message);
+                    
+                    // Remove existing messages
+                    const existingMessages = document.querySelectorAll('.message');
+                    existingMessages.forEach(msg => {
+                        try {
+                            msg.remove();
+                        } catch (e) {
+                            console.warn('Warning removing existing message:', e);
+                        }
+                    });
 
-                // Create new message
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}`;
-                messageDiv.innerHTML = message;
+                    // Create new message
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${type}`;
+                    messageDiv.innerHTML = message;
 
-                // Insert after form
-                const formSection = document.querySelector('.form-section');
-                formSection.appendChild(messageDiv);
-
-                // Remove message after 7 seconds
-                setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.remove();
+                    // Insert after form
+                    const formSection = document.querySelector('.form-section');
+                    if (formSection) {
+                        formSection.appendChild(messageDiv);
+                        console.log('✅ Message added to DOM');
+                    } else {
+                        console.error('❌ Form section not found for message');
+                        // Fallback: show alert
+                        alert(message);
+                        return;
                     }
-                }, 7000);
+
+                    // Remove message after 7 seconds
+                    setTimeout(() => {
+                        try {
+                            if (messageDiv.parentNode) {
+                                messageDiv.remove();
+                                console.log('🧹 Message removed after timeout');
+                            }
+                        } catch (e) {
+                            console.warn('Warning removing message after timeout:', e);
+                        }
+                    }, 7000);
+                    
+                } catch (error) {
+                    console.error('❌ Error in showMessage:', error);
+                    // Ultimate fallback
+                    alert(`${type.toUpperCase()}: ${message}`);
+                }
             }
         }
 
