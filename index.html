@@ -359,11 +359,6 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">📧 Your Email (opcional)</label>
-                        <input type="text" id="email" name="email" placeholder="qualquer coisa ou deixe vazio">
-                    </div>
-                    
-                    <div class="form-group">
                         <label for="comment">💭 Your Comment</label>
                         <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts... (will be saved to GitHub JSON database)"></textarea>
                     </div>
@@ -482,10 +477,9 @@
                     
                     const formData = new FormData(event.target);
                     const name = formData.get('name');
-                    const email = formData.get('email');
                     const commentText = formData.get('comment');
 
-                    console.log('📝 Form data:', { name, email, commentText });
+                    console.log('📝 Form data:', { name, commentText });
                     console.log('📝 Raw form data entries:');
                     for (let [key, value] of formData.entries()) {
                         console.log(`  ${key}: ${value}`);
@@ -500,7 +494,7 @@
 
                     const comment = {
                         name: name.trim(),
-                        email: email ? email.trim() : 'no-email',
+                        email: 'no-email',
                         comment: commentText.trim(),
                         date: new Date().toISOString(),
                         id: Date.now(),
@@ -615,11 +609,6 @@
                     this.showMessage('❌ Erro na validação dos dados', 'error');
                     return false;
                 }
-            }
-
-            isValidEmail(email) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
             }
 
             displayComments() {
