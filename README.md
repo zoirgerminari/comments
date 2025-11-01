@@ -1,13 +1,57 @@
-# 💬 Sistema de Comentários - Netlify
+# 💬 Comments System - GitHub Pages Version
 
-Sistema de comentários moderno e responsivo, pronto para deploy no Netlify.
+A modern, responsive comments system designed for GitHub Pages.
 
-## 🚀 Características
+## 🌟 Features
 
-- ✅ **Frontend moderno** com design responsivo
-- ✅ **Funções serverless** do Netlify
-- ✅ **Banco SQLite** integrado
-- ✅ **Interface intuitiva** com animações
+- **Beautiful Design**: Modern gradient background with responsive layout
+- **Local Storage**: Comments are saved in browser's localStorage
+- **Form Validation**: Email and content validation
+- **Real-time Updates**: Comments appear immediately after submission
+- **Mobile Friendly**: Responsive design works on all devices
+
+## 🚀 Live Demo
+
+Visit: **https://zoirgerminari.github.io/comments/**
+
+## ⚠️ Important Notes
+
+This is the **GitHub Pages version** that uses localStorage for comment storage.
+
+- ✅ **Works**: Comment form, validation, display
+- ✅ **Persists**: Comments saved in browser localStorage
+- ❌ **Limitation**: Comments are local to each browser/device
+
+## 🔄 Full Version
+
+For a complete version with permanent cloud storage, visit:
+**https://glowing-froyo-8fd8be.netlify.app**
+
+## 🛠️ Technical Stack
+
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **Storage**: localStorage (GitHub Pages version)
+- **Hosting**: GitHub Pages
+- **Design**: CSS Grid, Flexbox, CSS Variables
+
+## 📱 Browser Compatibility
+
+- ✅ Chrome/Edge 60+
+- ✅ Firefox 55+
+- ✅ Safari 12+
+- ✅ Mobile browsers
+
+## 🎨 Design Features
+
+- Glassmorphism effects
+- Smooth animations
+- Hover transitions
+- Responsive typography
+- Mobile-first design
+
+---
+
+**Made with ❤️ for GitHub Pages**
 - ✅ **Validação** de formulários
 - ✅ **Mensagens** de feedback em tempo real
 
