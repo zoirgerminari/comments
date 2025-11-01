@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Pages Test</title>
+    <style>
+        body { 
+            background: #FF0000 !important; 
+            color: white !important; 
+            font-size: 24px !important;
+            text-align: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔴 DIAGNÓSTICO GITHUB PAGES</h1>
+    <p>Se você vê FUNDO VERMELHO, o GitHub Pages está funcionando!</p>
+    <p>Timestamp: <span id="time"></span></p>
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        alert('🔴 DIAGNÓSTICO: Se vê esta tela VERMELHA, GitHub Pages funciona!');
+    </script>
+</body>
+</html>
