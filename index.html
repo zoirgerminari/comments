@@ -459,60 +459,89 @@
             setupForm() {
                 const form = document.getElementById('commentForm');
                 if (form) {
-                    form.addEventListener('submit', (e) => this.handleSubmit(e));
+                    // Remove any existing listeners
+                    form.removeEventListener('submit', this.handleSubmit);
+                    
+                    // Add new listener with proper binding
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleSubmit(e);
+                    });
+                    console.log('✅ Form event listener attached');
+                } else {
+                    console.error('❌ Form element not found');
                 }
             }
 
             async handleSubmit(event) {
+                console.log('🔧 Form submitted, processing...');
                 event.preventDefault();
                 
-                const formData = new FormData(event.target);
-                const comment = {
-                    name: formData.get('name').trim(),
-                    email: formData.get('email').trim(),
-                    comment: formData.get('comment').trim(),
-                    date: new Date().toISOString(),
-                    id: Date.now(),
-                    source: "github-form"
-                };
-
-                if (!this.validateComment(comment)) {
-                    return;
-                }
-
-                const submitBtn = document.getElementById('submitBtn');
-                const originalHTML = submitBtn.innerHTML;
-                
                 try {
-                    submitBtn.innerHTML = '<span>⏳ Saving to GitHub...</span>';
-                    submitBtn.disabled = true;
+                    const formData = new FormData(event.target);
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+                    const commentText = formData.get('comment');
 
-                    // For demo - simulate GitHub save
-                    this.showMessage('💡 Demo Mode: In a real implementation, this would commit to GitHub via API. For now, saving locally.', 'info');
-                    
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    console.log('📝 Form data:', { name, email, commentText });
 
-                    // Add comment locally
-                    this.comments.unshift(comment);
-                    this.displayComments();
-                    this.updateStats();
+                    // Validação básica
+                    if (!name || !email || !commentText) {
+                        this.showMessage('❌ Por favor, preencha todos os campos.', 'error');
+                        return;
+                    }
+
+                    const comment = {
+                        name: name.trim(),
+                        email: email.trim(),
+                        comment: commentText.trim(),
+                        date: new Date().toISOString(),
+                        id: Date.now(),
+                        source: "github-form"
+                    };
+
+                    console.log('💬 Comment object:', comment);
+
+                    if (!this.validateComment(comment)) {
+                        return;
+                    }
+
+                    const submitBtn = document.getElementById('submitBtn');
+                    const originalHTML = submitBtn.innerHTML;
+                
                     
-                    // Reset form
-                    event.target.reset();
-                    
-                    // Show success message
-                    this.showMessage('🎉 Comment saved! (In demo mode - real version would save to GitHub JSON)', 'success');
-                    
+                    try {
+                        submitBtn.innerHTML = '<span>⏳ Saving to GitHub...</span>';
+                        submitBtn.disabled = true;
+
+                        // For demo - simulate GitHub save
+                        this.showMessage('💡 Demo Mode: In a real implementation, this would commit to GitHub via API. For now, saving locally.', 'info');
+                        
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+
+                        // Add comment locally
+                        this.comments.unshift(comment);
+                        this.displayComments();
+                        this.updateStats();
+                        
+                        // Reset form
+                        event.target.reset();
+                        
+                        // Show success message
+                        this.showMessage('🎉 Comment saved! (In demo mode - real version would save to GitHub JSON)', 'success');
+                        
+                    } catch (error) {
+                        console.error('Error saving comment:', error);
+                        this.showMessage('❌ Error saving to GitHub database. Please try again.', 'error');
+                    } finally {
+                        submitBtn.innerHTML = originalHTML;
+                        submitBtn.disabled = false;
+                    }
                 } catch (error) {
-                    console.error('Error saving comment:', error);
-                    this.showMessage('❌ Error saving to GitHub database. Please try again.', 'error');
-                } finally {
-                    submitBtn.innerHTML = originalHTML;
-                    submitBtn.disabled = false;
+                    console.error('Form submission error:', error);
+                    this.showMessage('❌ Erro ao processar formulário. Tente novamente.', 'error');
                 }
-            }
-
-            // Real GitHub API save (requires token)
+            }            // Real GitHub API save (requires token)
             async saveToGitHub(newComment) {
                 // This would require a GitHub token and proper API calls
                 // For demo purposes, we'll just simulate it
@@ -526,22 +555,28 @@
             }
 
             validateComment(comment) {
-                if (comment.name.length < 2) {
-                    this.showMessage('❌ Name must be at least 2 characters long', 'error');
+                try {
+                    if (!comment.name || comment.name.length < 2) {
+                        this.showMessage('❌ Nome deve ter pelo menos 2 caracteres', 'error');
+                        return false;
+                    }
+
+                    if (!comment.email || !this.isValidEmail(comment.email)) {
+                        this.showMessage('❌ Por favor, insira um email válido', 'error');
+                        return false;
+                    }
+
+                    if (!comment.comment || comment.comment.length < 10) {
+                        this.showMessage('❌ Comentário deve ter pelo menos 10 caracteres', 'error');
+                        return false;
+                    }
+
+                    return true;
+                } catch (error) {
+                    console.error('Validation error:', error);
+                    this.showMessage('❌ Erro na validação dos dados', 'error');
                     return false;
                 }
-
-                if (!this.isValidEmail(comment.email)) {
-                    this.showMessage('❌ Please enter a valid email address', 'error');
-                    return false;
-                }
-
-                if (comment.comment.length < 10) {
-                    this.showMessage('❌ Comment must be at least 10 characters long', 'error');
-                    return false;
-                }
-
-                return true;
             }
 
             isValidEmail(email) {
