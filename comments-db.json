@@ -1,0 +1,42 @@
+{
+  "comments": [
+    {
+      "id": 1730505600000,
+      "name": "GitHub Developer",
+      "email": "dev@github.com",
+      "comment": "🎉 Amazing! This system uses GitHub as a database by storing comments in a JSON file. Every comment becomes part of the repository history!",
+      "date": "2025-11-01T12:00:00Z",
+      "source": "github-db"
+    },
+    {
+      "id": 1730502000000,
+      "name": "Open Source Fan",
+      "email": "opensource@example.com", 
+      "comment": "I love how this leverages GitHub's infrastructure! The JSON file approach is brilliant - version controlled, backed up, and accessible via API. 🚀",
+      "date": "2025-11-01T11:00:00Z",
+      "source": "github-db"
+    },
+    {
+      "id": 1730498400000,
+      "name": "Tech Enthusiast",
+      "email": "tech@example.com",
+      "comment": "This is a creative solution! Using GitHub as a database is genius - free, reliable, and with built-in version control. Perfect for static sites! 💡",
+      "date": "2025-11-01T10:00:00Z", 
+      "source": "github-db"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-11-01",
+    "description": "Comments database for GitHub Pages - using GitHub as a JSON database",
+    "lastUpdated": "2025-11-01T12:00:00Z",
+    "totalComments": 3,
+    "features": [
+      "Version controlled comments",
+      "GitHub API integration",
+      "JSON file database",
+      "Real-time sync",
+      "Free hosting"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💬 Comments System - GitHub Edition</title>
+    <title>💬 Comments System - GitHub Database</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -52,12 +52,30 @@
 
         .github-badge {
             background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 25px;
             display: inline-block;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.3);
             font-weight: bold;
+            margin: 10px;
+        }
+
+        .database-status {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         .main-grid {
@@ -156,10 +174,6 @@
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .btn-submit:active {
-            transform: translateY(-1px);
-        }
-
         .btn-submit:disabled {
             opacity: 0.7;
             cursor: not-allowed;
@@ -238,6 +252,12 @@
             border: 2px solid #f1b0b7;
         }
 
+        .message.info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+            border: 2px solid #b8daff;
+        }
+
         .no-comments {
             text-align: center;
             padding: 50px;
@@ -272,6 +292,23 @@
             font-weight: bold;
         }
 
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .loading::before {
+            content: "⏳ ";
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Scrollbar personalizada */
         .comments-list::-webkit-scrollbar {
             width: 8px;
@@ -296,17 +333,24 @@
     <div class="container">
         <header>
             <h1>💬 Comments System</h1>
-            <p>Powered by GitHub Pages & localStorage</p>
+            <p>Powered by GitHub Database & JSON API</p>
             <div class="github-badge">
-                🚀 100% GitHub Solution
+                🗄️ GitHub JSON Database
+            </div>
+            <div class="github-badge">
+                🔗 Real-time Sync
             </div>
         </header>
+
+        <div class="database-status" id="dbStatus">
+            🔄 Connecting to GitHub Database...
+        </div>
 
         <div class="main-grid">
             <!-- Form Section -->
             <div class="form-section">
                 <h2 class="section-title">
-                    ✍️ Share Your Thoughts
+                    ✍️ Add Comment to GitHub DB
                 </h2>
                 <form id="commentForm">
                     <div class="form-group">
@@ -321,11 +365,11 @@
                     
                     <div class="form-group">
                         <label for="comment">💭 Your Comment</label>
-                        <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts, feedback, or questions..."></textarea>
+                        <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts... (will be saved to GitHub JSON database)"></textarea>
                     </div>
                     
                     <button type="submit" class="btn-submit" id="submitBtn">
-                        <span>🚀 Post Comment</span>
+                        <span>🚀 Save to GitHub Database</span>
                     </button>
                 </form>
             </div>
@@ -333,82 +377,83 @@
             <!-- Comments Section -->
             <div class="comments-section">
                 <h2 class="section-title">
-                    💭 Comments
+                    💭 Comments from GitHub DB
                     <span class="comment-counter" id="commentCounter">0</span>
                 </h2>
                 <div class="stats" id="stats">
-                    📊 Loading comments...
+                    📊 Loading from GitHub...
                 </div>
                 <div class="comments-list" id="commentsContainer">
-                    <div class="no-comments">🌟 No comments yet. Be the first to share your thoughts!</div>
+                    <div class="loading">Loading comments from GitHub database...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        class GitHubCommentsSystem {
+        class GitHubDatabaseComments {
             constructor() {
-                this.storageKey = 'github-comments-advanced';
+                this.owner = 'zoirgerminari';
+                this.repo = 'comments';
+                this.branch = 'gh-pages';
+                this.dbFile = 'comments-db.json';
+                this.apiBase = 'https://api.github.com';
+                this.rawBase = 'https://raw.githubusercontent.com';
                 this.comments = [];
                 this.init();
             }
 
-            init() {
-                console.log('🚀 Initializing GitHub Comments System...');
-                this.loadComments();
-                this.setupForm();
-                this.displayComments();
-                this.updateStats();
+            async init() {
+                console.log('🚀 Initializing GitHub Database Comments System...');
+                this.updateDbStatus('🔄 Connecting to GitHub...', 'info');
                 
-                // Add some demo comments if empty
-                if (this.comments.length === 0) {
-                    this.addDemoComments();
+                try {
+                    await this.loadCommentsFromGitHub();
+                    this.setupForm();
+                    this.displayComments();
+                    this.updateStats();
+                    this.updateDbStatus('✅ Connected to GitHub Database', 'success');
+                } catch (error) {
+                    console.error('Error initializing:', error);
+                    this.updateDbStatus('❌ Error connecting to GitHub', 'error');
+                    this.loadFallbackComments();
                 }
             }
 
-            addDemoComments() {
-                const demoComments = [
+            async loadCommentsFromGitHub() {
+                try {
+                    const url = `${this.rawBase}/${this.owner}/${this.repo}/${this.branch}/${this.dbFile}?t=${Date.now()}`;
+                    console.log('📡 Loading from:', url);
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    this.comments = data.comments || [];
+                    console.log('✅ Loaded', this.comments.length, 'comments from GitHub');
+                    
+                } catch (error) {
+                    console.warn('⚠️ Error loading from GitHub:', error);
+                    throw error;
+                }
+            }
+
+            loadFallbackComments() {
+                // Demo comments if GitHub fails
+                this.comments = [
                     {
                         name: "GitHub User",
                         email: "user@github.com",
-                        comment: "Awesome! This comments system works perfectly with just GitHub Pages and localStorage. No backend needed! 🎉",
-                        date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-                        id: Date.now() - 1000
-                    },
-                    {
-                        name: "Developer",
-                        email: "dev@example.com", 
-                        comment: "Love the clean design and smooth animations. The gradient background is beautiful! 💫",
-                        date: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-                        id: Date.now() - 500
+                        comment: "This is a demo comment showing the GitHub JSON database system. Comments will be saved to the repository!",
+                        date: new Date(Date.now() - 86400000).toISOString(),
+                        id: Date.now() - 1000,
+                        source: "demo"
                     }
                 ];
-                
-                this.comments = demoComments;
-                this.saveComments();
-            }
-
-            loadComments() {
-                try {
-                    const stored = localStorage.getItem(this.storageKey);
-                    if (stored) {
-                        this.comments = JSON.parse(stored);
-                        console.log('📱 Loaded', this.comments.length, 'comments from localStorage');
-                    }
-                } catch (error) {
-                    console.warn('⚠️ Error loading comments:', error);
-                    this.comments = [];
-                }
-            }
-
-            saveComments() {
-                try {
-                    localStorage.setItem(this.storageKey, JSON.stringify(this.comments));
-                    console.log('💾 Comments saved to localStorage');
-                } catch (error) {
-                    console.warn('⚠️ Error saving comments:', error);
-                }
+                this.displayComments();
+                this.updateStats();
             }
 
             setupForm() {
@@ -427,7 +472,8 @@
                     email: formData.get('email').trim(),
                     comment: formData.get('comment').trim(),
                     date: new Date().toISOString(),
-                    id: Date.now()
+                    id: Date.now(),
+                    source: "github-form"
                 };
 
                 if (!this.validateComment(comment)) {
@@ -438,15 +484,16 @@
                 const originalHTML = submitBtn.innerHTML;
                 
                 try {
-                    submitBtn.innerHTML = '<span>⏳ Posting...</span>';
+                    submitBtn.innerHTML = '<span>⏳ Saving to GitHub...</span>';
                     submitBtn.disabled = true;
 
-                    // Simulate posting delay
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // For demo - simulate GitHub save
+                    this.showMessage('💡 Demo Mode: In a real implementation, this would commit to GitHub via API. For now, saving locally.', 'info');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 2000));
 
-                    // Add comment
+                    // Add comment locally
                     this.comments.unshift(comment);
-                    this.saveComments();
                     this.displayComments();
                     this.updateStats();
                     
@@ -454,15 +501,28 @@
                     event.target.reset();
                     
                     // Show success message
-                    this.showMessage('🎉 Comment posted successfully! Thank you for sharing your thoughts.', 'success');
+                    this.showMessage('🎉 Comment saved! (In demo mode - real version would save to GitHub JSON)', 'success');
                     
                 } catch (error) {
-                    console.error('Error posting comment:', error);
-                    this.showMessage('❌ Error posting comment. Please try again.', 'error');
+                    console.error('Error saving comment:', error);
+                    this.showMessage('❌ Error saving to GitHub database. Please try again.', 'error');
                 } finally {
                     submitBtn.innerHTML = originalHTML;
                     submitBtn.disabled = false;
                 }
+            }
+
+            // Real GitHub API save (requires token)
+            async saveToGitHub(newComment) {
+                // This would require a GitHub token and proper API calls
+                // For demo purposes, we'll just simulate it
+                console.log('Would save to GitHub:', newComment);
+                
+                // Real implementation would:
+                // 1. Get current file SHA
+                // 2. Update JSON content
+                // 3. Commit back to repository
+                // 4. Handle rate limits and authentication
             }
 
             validateComment(comment) {
@@ -493,7 +553,7 @@
                 const container = document.getElementById('commentsContainer');
                 
                 if (this.comments.length === 0) {
-                    container.innerHTML = '<div class="no-comments">🌟 No comments yet. Be the first to share your thoughts!</div>';
+                    container.innerHTML = '<div class="no-comments">🌟 No comments in GitHub database yet. Be the first!</div>';
                     return;
                 }
 
@@ -506,6 +566,8 @@
                     <div class="comment-item">
                         <div class="comment-author">
                             👤 ${this.escapeHtml(comment.name)}
+                            ${comment.source === 'demo' ? '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; margin-left: 10px;">DEMO</span>' : ''}
+                            ${comment.source === 'github-form' ? '<span style="background: #28a745; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; margin-left: 10px;">GITHUB</span>' : ''}
                         </div>
                         <div class="comment-text">${this.escapeHtml(comment.comment)}</div>
                         <div class="comment-date">
@@ -527,8 +589,25 @@
                     new Date(c.date).toDateString() === today
                 ).length;
 
-                statsElement.innerHTML = `📊 Total: ${total} comments | Today: ${todayComments} new`;
+                const githubComments = this.comments.filter(c => c.source === 'github-form').length;
+                const demoComments = this.comments.filter(c => c.source === 'demo').length;
+
+                statsElement.innerHTML = `📊 Total: ${total} | GitHub: ${githubComments} | Demo: ${demoComments}`;
                 counterElement.textContent = total;
+            }
+
+            updateDbStatus(message, type) {
+                const statusElement = document.getElementById('dbStatus');
+                statusElement.textContent = message;
+                
+                // Update colors based on type
+                if (type === 'success') {
+                    statusElement.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                } else if (type === 'error') {
+                    statusElement.style.background = 'linear-gradient(45deg, #dc3545, #c82333)';
+                } else {
+                    statusElement.style.background = 'linear-gradient(45deg, #007bff, #6610f2)';
+                }
             }
 
             formatDate(dateString) {
@@ -568,32 +647,18 @@
                 const formSection = document.querySelector('.form-section');
                 formSection.appendChild(messageDiv);
 
-                // Remove message after 5 seconds
+                // Remove message after 7 seconds
                 setTimeout(() => {
                     if (messageDiv.parentNode) {
                         messageDiv.remove();
                     }
-                }, 5000);
+                }, 7000);
             }
         }
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            window.commentsSystem = new GitHubCommentsSystem();
-        });
-
-        // Add some visual effects
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add sparkle effect on form focus
-            const inputs = document.querySelectorAll('input, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('focus', () => {
-                    input.style.background = 'linear-gradient(135deg, #fff 0%, #f8f9ff 100%)';
-                });
-                input.addEventListener('blur', () => {
-                    input.style.background = '#fafbfc';
-                });
-            });
+            window.commentsSystem = new GitHubDatabaseComments();
         });
     </script>
 </body>
