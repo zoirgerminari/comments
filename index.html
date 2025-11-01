@@ -1,236 +1,63 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comments System</title>
+    <title>Comments - No Email</title>
 </head>
 <body>
-    <div>
-        <h1>💬 Comments System</h1>
-        <p>Powered by GitHub Database</p>
+    <h1>💬 Comments System</h1>
+    <p>No Email Version - Clean</p>
 
+    <h2>Add Comment</h2>
+    <form id="form">
         <div>
-            <h2>✍️ Add Comment</h2>
-            <form id="commentForm">
-                <div>
-                    <label for="name">👤 Your Name</label>
-                    <input type="text" id="name" name="name" required minlength="2" placeholder="Enter your name">
-                </div>
-                
-                <div>
-                    <label for="comment">💭 Your Comment</label>
-                    <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts..."></textarea>
-                </div>
-                
-                <button type="submit" id="submitBtn">
-                    🚀 Save Comment
-                </button>
-            </form>
+            <label>Name:</label><br>
+            <input type="text" id="name" required>
         </div>
+        <br>
+        <div>
+            <label>Comment:</label><br>
+            <textarea id="comment" required></textarea>
+        </div>
+        <br>
+        <button type="submit">Save</button>
+    </form>
 
-        <div>
-            <h2>💭 Comments</h2>
-            <div id="stats">Loading...</div>
-            <div id="commentsContainer">
-                <div>Loading comments...</div>
-            </div>
-        </div>
-    </div>
+    <h2>Comments</h2>
+    <div id="comments">Loading...</div>
 
     <script>
-        class SimpleComments {
-            constructor() {
-                this.comments = [];
-                this.init();
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const comment = document.getElementById('comment').value;
+            
+            if (!name || !comment) {
+                alert('Fill all fields');
+                return;
             }
-
-            async init() {
-                console.log('🚀 Initializing Comments System...');
-                
-                try {
-                    await this.loadComments();
-                    this.setupForm();
-                    this.displayComments();
-                    this.updateStats();
-                } catch (error) {
-                    console.error('Error initializing:', error);
-                    this.loadDemoComments();
-                }
-            }
-
-            async loadComments() {
-                try {
-                    const url = 'https://raw.githubusercontent.com/zoirgerminari/comments/gh-pages/comments-db.json?t=' + Date.now();
-                    const response = await fetch(url);
-                    
-                    if (!response.ok) throw new Error('Failed to load');
-                    
-                    const data = await response.json();
-                    this.comments = data.comments || [];
-                    console.log('✅ Loaded', this.comments.length, 'comments');
-                    
-                } catch (error) {
-                    console.warn('⚠️ Error loading from GitHub:', error);
-                    throw error;
-                }
-            }
-
-            loadDemoComments() {
-                this.comments = [
-                    {
-                        name: "Demo User",
-                        comment: "This is a demo comment showing the system working!",
-                        date: new Date().toISOString(),
-                        id: Date.now(),
-                        source: "demo"
-                    }
-                ];
-                this.displayComments();
-                this.updateStats();
-            }
-
-            setupForm() {
-                const form = document.getElementById('commentForm');
-                if (form) {
-                    form.addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        this.handleSubmit(e);
-                    });
-                }
-            }
-
-            async handleSubmit(event) {
-                console.log('🔧 Form submitted');
-                
-                const formData = new FormData(event.target);
-                const name = formData.get('name');
-                const commentText = formData.get('comment');
-
-                if (!name || !commentText) {
-                    this.showMessage('❌ Please fill all fields', 'error');
-                    return;
-                }
-
-                if (name.length < 2) {
-                    this.showMessage('❌ Name must be at least 2 characters', 'error');
-                    return;
-                }
-
-                if (commentText.length < 10) {
-                    this.showMessage('❌ Comment must be at least 10 characters', 'error');
-                    return;
-                }
-
-                const comment = {
-                    name: name.trim(),
-                    comment: commentText.trim(),
-                    date: new Date().toISOString(),
-                    id: Date.now(),
-                    source: "form"
-                };
-
-                const submitBtn = document.getElementById('submitBtn');
-                const originalText = submitBtn.textContent;
-                
-                try {
-                    submitBtn.textContent = '⏳ Saving...';
-                    submitBtn.disabled = true;
-
-                    // Simulate save
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    // Add locally
-                    this.comments.unshift(comment);
-                    this.displayComments();
-                    this.updateStats();
-                    
-                    // Reset form
-                    event.target.reset();
-                    
-                    this.showMessage('🎉 Comment saved!', 'success');
-                    
-                } catch (error) {
-                    console.error('Error saving:', error);
-                    this.showMessage('❌ Error saving comment', 'error');
-                } finally {
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
-            }
-
-            displayComments() {
-                const container = document.getElementById('commentsContainer');
-                
-                if (this.comments.length === 0) {
-                    container.innerHTML = '<div>No comments yet. Be the first!</div>';
-                    return;
-                }
-
-                const commentsHTML = this.comments
-                    .sort((a, b) => new Date(b.date) - new Date(a.date))
-                    .map(comment => `
-                        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-                            <div><strong>👤 ${this.escapeHtml(comment.name)}</strong></div>
-                            <div>${this.escapeHtml(comment.comment)}</div>
-                            <div><small>📅 ${this.formatDate(comment.date)}</small></div>
-                        </div>
-                    `).join('');
-
-                container.innerHTML = commentsHTML;
-            }
-
-            updateStats() {
-                const statsElement = document.getElementById('stats');
-                statsElement.textContent = `📊 Total Comments: ${this.comments.length}`;
-            }
-
-            formatDate(dateString) {
-                const date = new Date(dateString);
-                const now = new Date();
-                const diffTime = Math.abs(now - date);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays === 1) {
-                    return 'Today at ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                } else if (diffDays === 2) {
-                    return 'Yesterday at ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                } else if (diffDays <= 7) {
-                    return `${diffDays - 1} days ago`;
-                } else {
-                    return date.toLocaleDateString();
-                }
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            showMessage(message, type) {
-                const existingMessages = document.querySelectorAll('.message');
-                existingMessages.forEach(msg => msg.remove());
-
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}`;
-                messageDiv.textContent = message;
-
-                const formSection = document.querySelector('.form-section');
-                formSection.appendChild(messageDiv);
-
-                setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.remove();
-                    }
-                }, 5000);
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            new SimpleComments();
+            
+            alert('Comment would be saved: ' + name + ' - ' + comment);
+            this.reset();
         });
+
+        // Load comments
+        fetch('https://raw.githubusercontent.com/zoirgerminari/comments/gh-pages/comments-db.json?t=' + Date.now())
+            .then(r => r.json())
+            .then(data => {
+                const html = data.comments.map(c => 
+                    `<div style="border:1px solid #ccc; margin:10px; padding:10px;">
+                        <strong>${c.name}</strong><br>
+                        ${c.comment}<br>
+                        <small>${c.date}</small>
+                    </div>`
+                ).join('');
+                document.getElementById('comments').innerHTML = html;
+            })
+            .catch(e => {
+                document.getElementById('comments').innerHTML = 'Error loading comments';
+            });
     </script>
 </body>
 </html>
