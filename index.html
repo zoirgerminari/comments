@@ -360,7 +360,7 @@
                     
                     <div class="form-group">
                         <label for="email">📧 Your Email</label>
-                        <input type="email" id="email" name="email" required placeholder="your@email.com">
+                        <input type="text" id="email" name="email" required placeholder="qualquer@teste.com (validação removida para testes)">
                     </div>
                     
                     <div class="form-group">
@@ -561,8 +561,9 @@
                         return false;
                     }
 
-                    if (!comment.email || !this.isValidEmail(comment.email)) {
-                        this.showMessage('❌ Por favor, insira um email válido', 'error');
+                    // Email validation removed for testing
+                    if (!comment.email) {
+                        this.showMessage('❌ Por favor, insira um email', 'error');
                         return false;
                     }
 
