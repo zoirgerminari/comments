@@ -1,158 +1,295 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comments System</title>
-    <meta name="description" content="Modern and responsive comments system">
-    <link rel="stylesheet" href="style.css">
+    <title>Comments System - Working Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .form-section, .comments-section {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .form-section h2, .comments-section h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        .comment-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .comment-text {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .comment-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .no-comments {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .status {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>💬 Comments System</h1>
             <p>Share your thoughts with us!</p>
-            <div id="modeIndicator" class="mode-indicator"></div>
         </header>
 
-        <main>
-            <!-- Form Section -->
-            <section class="form-section">
-                <h2>✍️ Leave your comment</h2>
-                <form id="comentarioForm">
-                    <div class="form-group">
-                        <input type="text" id="nome" name="nome" required>
-                        <label for="nome">Name</label>
-                    </div>
+        <div class="status" id="status">
+            📱 GitHub Pages Mode - Comments saved locally
+        </div>
 
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" required>
-                        <label for="email">Email</label>
-                    </div>
-
-                    <div class="form-group">
-                        <textarea id="comentario" name="comentario" required></textarea>
-                        <label for="comentario">Your comment</label>
-                    </div>
-
-                    <button type="submit" class="btn-submit">
-                        <span>Submit Comment</span>
-                    </button>
-                </form>
-            </section>
-
-            <!-- Comments Section -->
-            <section class="comments-section">
-                <h2>💭 Comments</h2>
-                <div id="commentsContainer">
-                    <div class="loading">Loading comments...</div>
+        <!-- Form Section -->
+        <div class="form-section">
+            <h2>📝 Add Your Comment</h2>
+            <form id="commentForm">
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" name="name" required minlength="2">
                 </div>
-            </section>
-        </main>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">Comment *</label>
+                    <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    💬 Submit Comment
+                </button>
+            </form>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h2>💭 Comments</h2>
+            <div id="commentsContainer">
+                <div class="no-comments">No comments yet. Be the first to comment!</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ========================================
-        // 💬 COMMENTS SYSTEM - JAVASCRIPT (ENGLISH)
-        // ========================================
-
-        class CommentsSystem {
+        class SimpleCommentsSystem {
             constructor() {
-                this.localComments = [];
-                this.storageKey = 'comments-system-github-pages';
+                this.storageKey = 'github-pages-comments';
+                this.comments = [];
                 this.init();
             }
 
             init() {
-                console.log('🚀 Starting GitHub Pages comments system...');
-                this.showModeIndicator();
-                this.setupEventListeners();
-                this.loadFromLocalStorage();
-                this.displayComments(this.localComments);
+                console.log('🚀 Starting Simple Comments System...');
+                this.loadComments();
+                this.setupForm();
+                this.displayComments();
             }
-            
-            loadFromLocalStorage() {
+
+            loadComments() {
                 try {
                     const stored = localStorage.getItem(this.storageKey);
                     if (stored) {
-                        this.localComments = JSON.parse(stored);
-                        console.log('📱 Loaded', this.localComments.length, 'comments from localStorage');
+                        this.comments = JSON.parse(stored);
+                        console.log('📱 Loaded', this.comments.length, 'comments from localStorage');
                     }
                 } catch (error) {
-                    console.warn('⚠️ Error loading localStorage:', error);
+                    console.warn('⚠️ Error loading comments:', error);
+                    this.comments = [];
                 }
             }
-            
-            saveToLocalStorage() {
+
+            saveComments() {
                 try {
-                    localStorage.setItem(this.storageKey, JSON.stringify(this.localComments));
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.comments));
                     console.log('💾 Comments saved to localStorage');
                 } catch (error) {
-                    console.warn('⚠️ Error saving localStorage:', error);
+                    console.warn('⚠️ Error saving comments:', error);
                 }
             }
 
-            showModeIndicator() {
-                const indicator = document.getElementById('modeIndicator');
-                indicator.textContent = '📄 GitHub Pages Mode';
-                indicator.className = 'mode-indicator local';
-            }
-
-            setupEventListeners() {
-                const form = document.getElementById('comentarioForm');
+            setupForm() {
+                const form = document.getElementById('commentForm');
                 if (form) {
                     form.addEventListener('submit', (e) => this.handleSubmit(e));
                 }
             }
 
-            async handleSubmit(event) {
+            handleSubmit(event) {
                 event.preventDefault();
                 
                 const formData = new FormData(event.target);
                 const comment = {
-                    nome: formData.get('nome').trim(),
+                    name: formData.get('name').trim(),
                     email: formData.get('email').trim(),
-                    comentario: formData.get('comentario').trim()
+                    comment: formData.get('comment').trim(),
+                    date: new Date().toISOString(),
+                    id: Date.now()
                 };
 
-                if (!this.validateForm(comment)) {
+                if (!this.validateComment(comment)) {
                     return;
                 }
 
-                const submitBtn = event.target.querySelector('.btn-submit');
-                const originalText = submitBtn.innerHTML;
+                // Add comment
+                this.comments.unshift(comment);
+                this.saveComments();
+                this.displayComments();
                 
-                try {
-                    submitBtn.innerHTML = '<span>⏳ Sending...</span>';
-                    submitBtn.disabled = true;
-
-                    await this.submitComment(comment);
-                    
-                    this.showMessage('Comment submitted successfully!', 'success');
-                    event.target.reset();
-                    this.displayComments(this.localComments);
-                    
-                } catch (error) {
-                    console.error('Error submitting comment:', error);
-                    this.showMessage('Error submitting comment. Please try again.', 'error');
-                } finally {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
+                // Reset form
+                event.target.reset();
+                
+                // Show success message
+                this.showMessage('Comment added successfully! 🎉', 'success');
             }
 
-            validateForm(comment) {
-                if (!comment.nome || comment.nome.length < 2) {
+            validateComment(comment) {
+                if (comment.name.length < 2) {
                     this.showMessage('Name must be at least 2 characters long', 'error');
                     return false;
                 }
 
-                if (!comment.email || !this.isValidEmail(comment.email)) {
-                    this.showMessage('Invalid email address', 'error');
+                if (!this.isValidEmail(comment.email)) {
+                    this.showMessage('Please enter a valid email address', 'error');
                     return false;
                 }
 
-                if (!comment.comentario || comment.comentario.length < 10) {
+                if (comment.comment.length < 10) {
                     this.showMessage('Comment must be at least 10 characters long', 'error');
                     return false;
                 }
@@ -165,83 +302,28 @@
                 return emailRegex.test(email);
             }
 
-            async submitComment(comment) {
-                // GitHub Pages: Store locally only
-                const newComment = {
-                    id: Date.now(),
-                    nome: comment.nome,
-                    email: comment.email,
-                    comentario: comment.comentario,
-                    data: new Date().toISOString()
-                };
-                
-                // Add to beginning of list (newest first)
-                this.localComments.unshift(newComment);
-                this.saveToLocalStorage();
-                
-                // Simulate delay
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                return { success: true, message: 'Comment added successfully!' };
-            }
-
-            displayComments(comments) {
-                console.log('🎨 displayComments called with:', comments);
+            displayComments() {
                 const container = document.getElementById('commentsContainer');
                 
-                if (!container) {
-                    console.error('❌ Container commentsContainer not found!');
-                    return;
-                }
-                
-                if (!comments || comments.length === 0) {
-                    console.log('💬 No comments, showing default message');
+                if (this.comments.length === 0) {
                     container.innerHTML = '<div class="no-comments">No comments yet. Be the first to comment!</div>';
                     return;
                 }
 
-                console.log('📝 Rendering', comments.length, 'comments');
-                
-                // Sort comments by date (newest first)
-                const sortedComments = comments.sort((a, b) => {
-                    return new Date(b.data) - new Date(a.data);
-                });
-
-                container.innerHTML = `
-                    <div class="comments-list">
-                        ${sortedComments.map(comment => this.createCommentHTML(comment)).join('')}
-                    </div>
-                `;
-                
-                console.log('✅ Comments rendered successfully');
-            }
-
-            createCommentHTML(comment) {
-                console.log('🎨 Creating HTML for comment:', comment);
-                const date = this.formatDate(comment.data);
-                
-                return `
+                const commentsHTML = this.comments.map(comment => `
                     <div class="comment-item">
-                        <div class="comment-author">${this.escapeHtml(comment.nome)}</div>
-                        <div class="comment-text">${this.escapeHtml(comment.comentario)}</div>
-                        <div class="comment-date">${date}</div>
+                        <div class="comment-author">👤 ${this.escapeHtml(comment.name)}</div>
+                        <div class="comment-text">${this.escapeHtml(comment.comment)}</div>
+                        <div class="comment-date">📅 ${this.formatDate(comment.date)}</div>
                     </div>
-                `;
+                `).join('');
+
+                container.innerHTML = commentsHTML;
             }
 
             formatDate(dateString) {
-                try {
-                    const date = new Date(dateString);
-                    return date.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                } catch (error) {
-                    return dateString || 'Date not available';
-                }
+                const date = new Date(dateString);
+                return date.toLocaleString();
             }
 
             escapeHtml(text) {
@@ -250,39 +332,32 @@
                 return div.innerHTML;
             }
 
-            displayError(message) {
-                const container = document.getElementById('commentsContainer');
-                container.innerHTML = `<div class="error">${message}</div>`;
-            }
-
-            showMessage(message, type = 'success') {
-                // Remove previous message if exists
-                const existingMessage = document.querySelector('.message');
-                if (existingMessage) {
-                    existingMessage.remove();
-                }
+            showMessage(message, type) {
+                // Remove existing messages
+                const existingMessages = document.querySelectorAll('.message');
+                existingMessages.forEach(msg => msg.remove());
 
                 // Create new message
-                const messageEl = document.createElement('div');
-                messageEl.className = `message ${type}`;
-                messageEl.textContent = message;
-                
-                document.body.appendChild(messageEl);
-                
-                // Show message
-                setTimeout(() => messageEl.classList.add('show'), 100);
-                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                messageDiv.textContent = message;
+
+                // Insert after form
+                const formSection = document.querySelector('.form-section');
+                formSection.appendChild(messageDiv);
+
                 // Remove message after 5 seconds
                 setTimeout(() => {
-                    messageEl.classList.remove('show');
-                    setTimeout(() => messageEl.remove(), 300);
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
                 }, 5000);
             }
         }
 
-        // Initialize system when DOM is ready
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            new CommentsSystem();
+            window.commentsSystem = new SimpleCommentsSystem();
         });
     </script>
 </body>
