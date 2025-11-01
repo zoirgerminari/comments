@@ -124,7 +124,6 @@
 
                 const comment = {
                     name: name.trim(),
-                    email: 'no-email',
                     comment: commentText.trim(),
                     date: new Date().toISOString(),
                     id: Date.now(),
@@ -210,30 +209,15 @@
             }
 
             showMessage(message, type) {
-                const existingMessages = document.querySelectorAll('[data-message]');
+                const existingMessages = document.querySelectorAll('.message');
                 existingMessages.forEach(msg => msg.remove());
 
                 const messageDiv = document.createElement('div');
-                messageDiv.setAttribute('data-message', 'true');
-                
-                if (type === 'success') {
-                    messageDiv.style.backgroundColor = '#d4edda';
-                    messageDiv.style.color = '#155724';
-                    messageDiv.style.border = '1px solid #c3e6cb';
-                } else if (type === 'error') {
-                    messageDiv.style.backgroundColor = '#f8d7da';
-                    messageDiv.style.color = '#721c24';
-                    messageDiv.style.border = '1px solid #f5c6cb';
-                }
-                
-                messageDiv.style.padding = '10px';
-                messageDiv.style.margin = '10px 0';
-                messageDiv.style.textAlign = 'center';
-                messageDiv.style.fontWeight = 'bold';
+                messageDiv.className = `message ${type}`;
                 messageDiv.textContent = message;
 
-                const form = document.getElementById('commentForm');
-                form.parentNode.appendChild(messageDiv);
+                const formSection = document.querySelector('.form-section');
+                formSection.appendChild(messageDiv);
 
                 setTimeout(() => {
                     if (messageDiv.parentNode) {
