@@ -6,12 +6,31 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <style>
+        body {
+            background-color: #00FF00 !important;
+            color: #000000 !important;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            background-color: #FF0000 !important;
+            color: #FFFFFF !important;
+            padding: 10px;
+            text-align: center;
+        }
+        h2 {
+            background-color: #0000FF !important;
+            color: #FFFFFF !important;
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
-    <h1>💬 Comments System (NO EMAIL VERSION)</h1>
-    <p>Final version without email field</p>
+    <h1>💬 TESTE: SEM EMAIL - FUNDO VERDE!</h1>
+    <p><strong>Se você vê fundo VERDE, esta é a versão correta SEM EMAIL</strong></p>
 
-    <h2>Add Comment</h2>
+    <h2>Add Comment (NO EMAIL FIELD)</h2>
     <form id="form">
         <div>
             <label><strong>Name:</strong></label><br>
@@ -31,6 +50,11 @@
 
     <script>
         console.log('🔥 NO EMAIL VERSION LOADED - ' + new Date());
+        
+        // Alert to confirm correct version
+        setTimeout(() => {
+            alert('✅ VERSÃO CORRETA CARREGADA!\\n\\n- Fundo VERDE\\n- SEM campo email\\n- SEM Netlify\\n\\nSe ainda vê email, limpe cache!');
+        }, 1000);
         
         document.getElementById('form').addEventListener('submit', function(e) {
             e.preventDefault();
