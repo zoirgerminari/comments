@@ -359,8 +359,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">📧 Your Email</label>
-                        <input type="text" id="email" name="email" required placeholder="qualquer@teste.com (validação removida para testes)">
+                        <label for="email">📧 Your Email (opcional)</label>
+                        <input type="text" id="email" name="email" placeholder="qualquer coisa ou deixe vazio">
                     </div>
                     
                     <div class="form-group">
@@ -492,15 +492,15 @@
                     }
 
                     // Validação básica
-                    if (!name || !email || !commentText) {
-                        console.warn('⚠️ Validation failed: missing fields');
-                        this.showMessage('❌ Por favor, preencha todos os campos.', 'error');
+                    if (!name || !commentText) {
+                        console.warn('⚠️ Validation failed: missing required fields');
+                        this.showMessage('❌ Por favor, preencha nome e comentário.', 'error');
                         return;
                     }
 
                     const comment = {
                         name: name.trim(),
-                        email: email.trim(),
+                        email: email ? email.trim() : 'no-email',
                         comment: commentText.trim(),
                         date: new Date().toISOString(),
                         id: Date.now(),
@@ -602,11 +602,7 @@
                         return false;
                     }
 
-                    // Email validation removed for testing
-                    if (!comment.email) {
-                        this.showMessage('❌ Por favor, insira um email', 'error');
-                        return false;
-                    }
+                    // No email validation - accepts anything
 
                     if (!comment.comment || comment.comment.length < 10) {
                         this.showMessage('❌ Comentário deve ter pelo menos 10 caracteres', 'error');
