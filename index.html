@@ -4,197 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comments System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .form-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-submit:hover {
-            opacity: 0.9;
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .comments-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .comment-item {
-            background: #f8f9fa;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .comment-author {
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .comment-text {
-            color: #333;
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-
-        .comment-date {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        .stats {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            color: #667eea;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💬 Comments System</h1>
-            <p>Powered by GitHub Database</p>
-        </div>
+    <div>
+        <h1>💬 Comments System</h1>
+        <p>Powered by GitHub Database</p>
 
-        <div class="form-section">
+        <div>
             <h2>✍️ Add Comment</h2>
             <form id="commentForm">
-                <div class="form-group">
+                <div>
                     <label for="name">👤 Your Name</label>
                     <input type="text" id="name" name="name" required minlength="2" placeholder="Enter your name">
                 </div>
                 
-                <div class="form-group">
+                <div>
                     <label for="comment">💭 Your Comment</label>
                     <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts..."></textarea>
                 </div>
                 
-                <button type="submit" class="btn-submit" id="submitBtn">
+                <button type="submit" id="submitBtn">
                     🚀 Save Comment
                 </button>
             </form>
         </div>
 
-        <div class="comments-section">
+        <div>
             <h2>💭 Comments</h2>
-            <div class="stats" id="stats">Loading...</div>
+            <div id="stats">Loading...</div>
             <div id="commentsContainer">
-                <div class="loading">Loading comments...</div>
+                <div>Loading comments...</div>
             </div>
         </div>
     </div>
@@ -325,17 +164,17 @@
                 const container = document.getElementById('commentsContainer');
                 
                 if (this.comments.length === 0) {
-                    container.innerHTML = '<div class="loading">No comments yet. Be the first!</div>';
+                    container.innerHTML = '<div>No comments yet. Be the first!</div>';
                     return;
                 }
 
                 const commentsHTML = this.comments
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .map(comment => `
-                        <div class="comment-item">
-                            <div class="comment-author">👤 ${this.escapeHtml(comment.name)}</div>
-                            <div class="comment-text">${this.escapeHtml(comment.comment)}</div>
-                            <div class="comment-date">📅 ${this.formatDate(comment.date)}</div>
+                        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+                            <div><strong>👤 ${this.escapeHtml(comment.name)}</strong></div>
+                            <div>${this.escapeHtml(comment.comment)}</div>
+                            <div><small>📅 ${this.formatDate(comment.date)}</small></div>
                         </div>
                     `).join('');
 
@@ -371,15 +210,30 @@
             }
 
             showMessage(message, type) {
-                const existingMessages = document.querySelectorAll('.message');
+                const existingMessages = document.querySelectorAll('[data-message]');
                 existingMessages.forEach(msg => msg.remove());
 
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}`;
+                messageDiv.setAttribute('data-message', 'true');
+                
+                if (type === 'success') {
+                    messageDiv.style.backgroundColor = '#d4edda';
+                    messageDiv.style.color = '#155724';
+                    messageDiv.style.border = '1px solid #c3e6cb';
+                } else if (type === 'error') {
+                    messageDiv.style.backgroundColor = '#f8d7da';
+                    messageDiv.style.color = '#721c24';
+                    messageDiv.style.border = '1px solid #f5c6cb';
+                }
+                
+                messageDiv.style.padding = '10px';
+                messageDiv.style.margin = '10px 0';
+                messageDiv.style.textAlign = 'center';
+                messageDiv.style.fontWeight = 'bold';
                 messageDiv.textContent = message;
 
-                const formSection = document.querySelector('.form-section');
-                formSection.appendChild(messageDiv);
+                const form = document.getElementById('commentForm');
+                form.parentNode.appendChild(messageDiv);
 
                 setTimeout(() => {
                     if (messageDiv.parentNode) {
