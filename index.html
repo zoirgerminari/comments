@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comments System - Working Version</title>
+    <title>💬 Comments System - GitHub Edition</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -29,135 +29,266 @@
             text-align: center;
             margin-bottom: 40px;
             color: white;
+            position: relative;
         }
 
         header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.3); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.6); }
+        }
+
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .github-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            font-weight: bold;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
 
         .form-section, .comments-section {
             background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+            backdrop-filter: blur(15px);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
         }
 
-        .form-section h2, .comments-section h2 {
+        .form-section:hover, .comments-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
             color: #667eea;
             margin-bottom: 25px;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            position: relative;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1rem;
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            background: #fafbfc;
         }
 
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
 
         .form-group textarea {
-            min-height: 100px;
+            min-height: 120px;
             resize: vertical;
+            font-family: inherit;
         }
 
         .btn-submit {
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-submit:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .comments-list {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
         }
 
         .comment-item {
-            background: #f8f9fa;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .comment-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
         .comment-author {
             font-weight: bold;
             color: #667eea;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
         }
 
         .comment-text {
-            color: #555;
-            margin-bottom: 10px;
+            color: #495057;
+            margin-bottom: 15px;
+            line-height: 1.7;
+            font-size: 1rem;
         }
 
         .comment-date {
             font-size: 0.9rem;
-            color: #888;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .message {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
+            padding: 18px;
+            border-radius: 12px;
+            margin: 20px 0;
             text-align: center;
-            font-weight: bold;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message.success {
-            background: #d4edda;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border: 2px solid #b8dabc;
         }
 
         .message.error {
-            background: #f8d7da;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
             color: #721c24;
-            border: 1px solid #f5c6cb;
+            border: 2px solid #f1b0b7;
         }
 
         .no-comments {
             text-align: center;
-            padding: 40px;
-            color: #888;
+            padding: 50px;
+            color: #6c757d;
             font-style: italic;
+            font-size: 1.2rem;
         }
 
-        .status {
+        .stats {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .comment-counter {
+            position: absolute;
+            top: -10px;
+            right: -10px;
             background: #667eea;
             color: white;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 20px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* Scrollbar personalizada */
+        .comments-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .comments-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .comments-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .comments-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
@@ -165,60 +296,97 @@
     <div class="container">
         <header>
             <h1>💬 Comments System</h1>
-            <p>Share your thoughts with us!</p>
+            <p>Powered by GitHub Pages & localStorage</p>
+            <div class="github-badge">
+                🚀 100% GitHub Solution
+            </div>
         </header>
 
-        <div class="status" id="status">
-            📱 GitHub Pages Mode - Comments saved locally
-        </div>
+        <div class="main-grid">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    ✍️ Share Your Thoughts
+                </h2>
+                <form id="commentForm">
+                    <div class="form-group">
+                        <label for="name">👤 Your Name</label>
+                        <input type="text" id="name" name="name" required minlength="2" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">📧 Your Email</label>
+                        <input type="email" id="email" name="email" required placeholder="your@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment">💭 Your Comment</label>
+                        <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts, feedback, or questions..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span>🚀 Post Comment</span>
+                    </button>
+                </form>
+            </div>
 
-        <!-- Form Section -->
-        <div class="form-section">
-            <h2>📝 Add Your Comment</h2>
-            <form id="commentForm">
-                <div class="form-group">
-                    <label for="name">Name *</label>
-                    <input type="text" id="name" name="name" required minlength="2">
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h2 class="section-title">
+                    💭 Comments
+                    <span class="comment-counter" id="commentCounter">0</span>
+                </h2>
+                <div class="stats" id="stats">
+                    📊 Loading comments...
                 </div>
-                
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required>
+                <div class="comments-list" id="commentsContainer">
+                    <div class="no-comments">🌟 No comments yet. Be the first to share your thoughts!</div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="comment">Comment *</label>
-                    <textarea id="comment" name="comment" required minlength="10" placeholder="Share your thoughts..."></textarea>
-                </div>
-                
-                <button type="submit" class="btn-submit">
-                    💬 Submit Comment
-                </button>
-            </form>
-        </div>
-
-        <!-- Comments Section -->
-        <div class="comments-section">
-            <h2>💭 Comments</h2>
-            <div id="commentsContainer">
-                <div class="no-comments">No comments yet. Be the first to comment!</div>
             </div>
         </div>
     </div>
 
     <script>
-        class SimpleCommentsSystem {
+        class GitHubCommentsSystem {
             constructor() {
-                this.storageKey = 'github-pages-comments';
+                this.storageKey = 'github-comments-advanced';
                 this.comments = [];
                 this.init();
             }
 
             init() {
-                console.log('🚀 Starting Simple Comments System...');
+                console.log('🚀 Initializing GitHub Comments System...');
                 this.loadComments();
                 this.setupForm();
                 this.displayComments();
+                this.updateStats();
+                
+                // Add some demo comments if empty
+                if (this.comments.length === 0) {
+                    this.addDemoComments();
+                }
+            }
+
+            addDemoComments() {
+                const demoComments = [
+                    {
+                        name: "GitHub User",
+                        email: "user@github.com",
+                        comment: "Awesome! This comments system works perfectly with just GitHub Pages and localStorage. No backend needed! 🎉",
+                        date: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+                        id: Date.now() - 1000
+                    },
+                    {
+                        name: "Developer",
+                        email: "dev@example.com", 
+                        comment: "Love the clean design and smooth animations. The gradient background is beautiful! 💫",
+                        date: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+                        id: Date.now() - 500
+                    }
+                ];
+                
+                this.comments = demoComments;
+                this.saveComments();
             }
 
             loadComments() {
@@ -250,7 +418,7 @@
                 }
             }
 
-            handleSubmit(event) {
+            async handleSubmit(event) {
                 event.preventDefault();
                 
                 const formData = new FormData(event.target);
@@ -266,31 +434,50 @@
                     return;
                 }
 
-                // Add comment
-                this.comments.unshift(comment);
-                this.saveComments();
-                this.displayComments();
+                const submitBtn = document.getElementById('submitBtn');
+                const originalHTML = submitBtn.innerHTML;
                 
-                // Reset form
-                event.target.reset();
-                
-                // Show success message
-                this.showMessage('Comment added successfully! 🎉', 'success');
+                try {
+                    submitBtn.innerHTML = '<span>⏳ Posting...</span>';
+                    submitBtn.disabled = true;
+
+                    // Simulate posting delay
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Add comment
+                    this.comments.unshift(comment);
+                    this.saveComments();
+                    this.displayComments();
+                    this.updateStats();
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    // Show success message
+                    this.showMessage('🎉 Comment posted successfully! Thank you for sharing your thoughts.', 'success');
+                    
+                } catch (error) {
+                    console.error('Error posting comment:', error);
+                    this.showMessage('❌ Error posting comment. Please try again.', 'error');
+                } finally {
+                    submitBtn.innerHTML = originalHTML;
+                    submitBtn.disabled = false;
+                }
             }
 
             validateComment(comment) {
                 if (comment.name.length < 2) {
-                    this.showMessage('Name must be at least 2 characters long', 'error');
+                    this.showMessage('❌ Name must be at least 2 characters long', 'error');
                     return false;
                 }
 
                 if (!this.isValidEmail(comment.email)) {
-                    this.showMessage('Please enter a valid email address', 'error');
+                    this.showMessage('❌ Please enter a valid email address', 'error');
                     return false;
                 }
 
                 if (comment.comment.length < 10) {
-                    this.showMessage('Comment must be at least 10 characters long', 'error');
+                    this.showMessage('❌ Comment must be at least 10 characters long', 'error');
                     return false;
                 }
 
@@ -306,24 +493,59 @@
                 const container = document.getElementById('commentsContainer');
                 
                 if (this.comments.length === 0) {
-                    container.innerHTML = '<div class="no-comments">No comments yet. Be the first to comment!</div>';
+                    container.innerHTML = '<div class="no-comments">🌟 No comments yet. Be the first to share your thoughts!</div>';
                     return;
                 }
 
-                const commentsHTML = this.comments.map(comment => `
+                // Sort comments by date (newest first)
+                const sortedComments = [...this.comments].sort((a, b) => 
+                    new Date(b.date) - new Date(a.date)
+                );
+
+                const commentsHTML = sortedComments.map(comment => `
                     <div class="comment-item">
-                        <div class="comment-author">👤 ${this.escapeHtml(comment.name)}</div>
+                        <div class="comment-author">
+                            👤 ${this.escapeHtml(comment.name)}
+                        </div>
                         <div class="comment-text">${this.escapeHtml(comment.comment)}</div>
-                        <div class="comment-date">📅 ${this.formatDate(comment.date)}</div>
+                        <div class="comment-date">
+                            📅 ${this.formatDate(comment.date)}
+                        </div>
                     </div>
                 `).join('');
 
                 container.innerHTML = commentsHTML;
             }
 
+            updateStats() {
+                const statsElement = document.getElementById('stats');
+                const counterElement = document.getElementById('commentCounter');
+                
+                const total = this.comments.length;
+                const today = new Date().toDateString();
+                const todayComments = this.comments.filter(c => 
+                    new Date(c.date).toDateString() === today
+                ).length;
+
+                statsElement.innerHTML = `📊 Total: ${total} comments | Today: ${todayComments} new`;
+                counterElement.textContent = total;
+            }
+
             formatDate(dateString) {
                 const date = new Date(dateString);
-                return date.toLocaleString();
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) {
+                    return 'Today at ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } else if (diffDays === 2) {
+                    return 'Yesterday at ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } else if (diffDays <= 7) {
+                    return `${diffDays - 1} days ago`;
+                } else {
+                    return date.toLocaleDateString();
+                }
             }
 
             escapeHtml(text) {
@@ -340,7 +562,7 @@
                 // Create new message
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${type}`;
-                messageDiv.textContent = message;
+                messageDiv.innerHTML = message;
 
                 // Insert after form
                 const formSection = document.querySelector('.form-section');
@@ -357,7 +579,21 @@
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            window.commentsSystem = new SimpleCommentsSystem();
+            window.commentsSystem = new GitHubCommentsSystem();
+        });
+
+        // Add some visual effects
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add sparkle effect on form focus
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.style.background = 'linear-gradient(135deg, #fff 0%, #f8f9ff 100%)';
+                });
+                input.addEventListener('blur', () => {
+                    input.style.background = '#fafbfc';
+                });
+            });
         });
     </script>
 </body>
